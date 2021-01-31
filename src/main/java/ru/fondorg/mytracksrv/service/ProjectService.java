@@ -1,6 +1,8 @@
 package ru.fondorg.mytracksrv.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.fondorg.mytracksrv.domain.*;
@@ -31,18 +33,18 @@ public class ProjectService {
      * Creates new project in the repository, adds specified user to the project participants
      *
      * @param project Project to save
-     * @param user    the project's creator. This user will be added to the project participants as owner.
+     * @param creator the project's creator. This user will be added to the project participants as owner.
      * @return created Project instance
      */
-    public Project createProject(Project project, User user) {
-        user = userService.findByIdOrCreate(user);
-        project.setOwner(user.getId());
+    public Project createProject(Project project, User creator) {
+        creator = userService.findByIdOrCreate(creator);
+        project.setOwner(creator.getId());
         project = projectRepository.save(project);
 
         ProjectParticipant participant = new ProjectParticipant();
         participant.setId(new ProjectParticipantKey());
         participant.setProject(project);
-        participant.setUser(user);
+        participant.setUser(creator);
         participant.setRole(ParticipantRole.OWNER);
         projectParticipantRepository.save(participant);
         return project;
@@ -78,8 +80,9 @@ public class ProjectService {
 
     /**
      * Checks if the project with the specified project id has a user as a participant
+     *
      * @param projectId project id to check
-     * @param userId user id to check
+     * @param userId    user id to check
      * @return true if user participates in project. false otherwise
      */
     public boolean isUserParticipatesInProject(Long projectId, String userId) {
@@ -101,6 +104,7 @@ public class ProjectService {
 
     /**
      * Find all user projects
+     *
      * @param user the participant of the projects
      * @return list of projects where the specified user participates
      */
@@ -109,8 +113,8 @@ public class ProjectService {
     }
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-    public List<Issue> getProjectIssues(String userId, Long projectId) {
-        return issueRepository.findByProjectId(projectId);
+    public Page<Issue> getProjectIssues(Long projectId, String userId, int page, int size) {
+        return issueRepository.findByProjectId(projectId, PageRequest.of(page, size));
     }
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")

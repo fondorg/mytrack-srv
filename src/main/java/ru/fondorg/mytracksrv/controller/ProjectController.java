@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import ru.fondorg.mytracksrv.domain.Issue;
 import ru.fondorg.mytracksrv.domain.Project;
@@ -63,8 +64,8 @@ public class ProjectController {
     }
 
     @GetMapping("/{id}/issues")
-    public List<Issue> getProjectIssues(@PathVariable Long id, HttpServletRequest request) {
+    public Page<Issue> getProjectIssues(@PathVariable Long id, @RequestParam int page, @RequestParam int size, HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
-        return projectService.getProjectIssues(user.getId(), id);
+        return projectService.getProjectIssues(id, user.getId(), page, size);
     }
 }

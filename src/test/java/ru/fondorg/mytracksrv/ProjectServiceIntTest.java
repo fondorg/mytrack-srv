@@ -25,7 +25,7 @@ import static ru.fondorg.mytracksrv.MytrackTestUtils.instanceOfUser;
 @DirtiesContext(classMode = DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD)
 //@EnableConfigurationProperties
 //@ContextConfiguration(initializers = ConfigFileApplicationContextInitializer.class)
-public class ProjectServiceIntegrationTest {
+public class ProjectServiceIntTest {
 
 
     @Autowired
@@ -44,7 +44,7 @@ public class ProjectServiceIntegrationTest {
     ProjectService projectService;
 
     @Test
-    public void testCreate() throws Exception {
+    public void createProject() throws Exception {
         Project project = instanceOfProject();
         User user = instanceOfUser("111");
         project = projectService.createProject(project, user);

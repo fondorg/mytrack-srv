@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
@@ -15,6 +16,8 @@ import ru.fondorg.mytracksrv.service.IssueService;
 import ru.fondorg.mytracksrv.service.ProjectService;
 
 import java.util.List;
+
+import static org.assertj.core.api.Assertions.*;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -36,8 +39,8 @@ public class IssueServiceIntTest {
         Project project = MytrackTestUtils.instanceOfProject();
         project = projectService.createProject(project, user);
         Issue issue = createTestIssue(user, project);
-        List<Issue> issues = projectService.getProjectIssues(user.getId(), project.getId());
-        Assertions.assertThat(issues.size()).isEqualTo(1);
+        Page<Issue> page = projectService.getProjectIssues(project.getId(), user.getId(), 0, 20);
+        assertThat(page.getContent().size()).isEqualTo(1);
     }
 
     /**
@@ -47,7 +50,7 @@ public class IssueServiceIntTest {
     @Test
     @WithMockUser
     public void saveIssueUnauthorized() {
-        Assertions.assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> {
+        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> {
             User user1 = MytrackTestUtils.instanceOfUser("111");
             User user2 = MytrackTestUtils.instanceOfUser("222");
             Project project = MytrackTestUtils.instanceOfProject();
@@ -56,14 +59,17 @@ public class IssueServiceIntTest {
         });
     }
 
+    /**
+     * Test of getting issue by issue id for the specific project
+     */
     @Test
     @WithMockUser
     public void getIssue() {
         User user = MytrackTestUtils.instanceOfUser("111");
         Project project = MytrackTestUtils.instanceOfProject();
         project = projectService.createProject(project, user);
-        createTestIssue(user, project);
-        Issue issue = issueService.
+        Issue issue = createTestIssue(user, project);
+        issueService.getIssue(issue.getId(), project.getId(), user).orElseThrow();
     }
 
     @Test
@@ -72,9 +78,11 @@ public class IssueServiceIntTest {
         User user = MytrackTestUtils.instanceOfUser("111");
         Project project = MytrackTestUtils.instanceOfProject();
         project = projectService.createProject(project, user);
-        createTestIssue(user, project);
-//        Issue issue = issueService.
-//        TODO
+        Issue issue = createTestIssue(user, project);
+        String updatedTitle = "New issue title";
+        issue.setTitle(updatedTitle);
+        Issue updatedIssue = issueService.updateIssue(issue, user);
+        assertThat(updatedIssue.getTitle()).isEqualTo(updatedTitle);
     }
 
     @Test
@@ -83,11 +91,39 @@ public class IssueServiceIntTest {
         //TODO
     }
 
+    /**
+     * Find list of project issues with pagination
+     */
     @Test
+    @WithMockUser
     public void findAllProjectIssue() {
-        //TODO
+        User user = MytrackTestUtils.instanceOfUser("111");
+        Project project = MytrackTestUtils.instanceOfProject();
+        project = projectService.createProject(project, user);
+        String fTitle = "Issue %d";
+        String fDescription = "Description of issue %d";
+        int totalIssues = 20;
+        for (int i = 0; i < totalIssues; i++) {
+            Issue issue = new Issue();
+            issue.setAuthor(user);
+            issue.setProject(project);
+            issue.setTitle(String.format(fTitle, i));
+            issue.setDescription(String.format(fDescription, i));
+            issueService.saveIssue(issue, user);
+        }
+        int pageSize = 5;
+        int pageNum = 0;
+        Page<Issue> page = projectService.getProjectIssues(project.getId(), user.getId(), pageNum, pageSize);
+        assertThat(page.getContent().size()).isEqualTo(pageSize);
+        assertThat(page.getTotalPages()).isEqualTo(totalIssues / pageSize);
     }
 
+    /**
+     * Helper test method that creates new issue instance in the database
+     * @param user the creator of the issue
+     * @param project the project the issue belongs to
+     * @return created issue
+     */
     private Issue createTestIssue(User user, Project project) {
         Issue issue = new Issue();
         issue.setAuthor(user);
