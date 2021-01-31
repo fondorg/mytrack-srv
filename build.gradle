@@ -8,7 +8,7 @@ plugins {
 
 group = 'ru.fondorg'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '13'
+sourceCompatibility = '11'
 
 repositories {
 	mavenCentral()
@@ -39,7 +39,7 @@ test {
 
 jib {
 	from {
-		image 'gradle:jdk13'
+		image 'gradle:jdk11'
 	}
 /*	to {
 		image 'mytrack'
