@@ -1,0 +1,16 @@
+apiVersion: skaffold/v2beta6
+kind: Config
+metadata:
+  name: mytrack-srv
+build:
+  artifacts:
+  - image: mytrack-srv
+    context: .
+    jib: {}
+deploy:
+  kubectl:
+    manifests:
+    - kubernetes-manifests/mytrack-srv.deployment.yaml
+    - kubernetes-manifests/mytrack-srv.service.yaml
+    #- kubernetes-manifests/keycloak-service.yaml
+    #- kubernetes-manifests/keycloak-ingress.yaml

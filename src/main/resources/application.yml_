@@ -1,0 +1,23 @@
+server:
+  port: "${PORT}"
+
+keycloak:
+  realm: mytrack
+  auth-server-url: http://keycloak:9999/auth
+  ssl-required: external
+  resource: mytrack-srv
+  bearer-only: true
+  credentials:
+    secret: 4c152f2a-783f-4cf4-b411-57836a34cc84
+  cors: false
+  use-resource-role-mappings: true
+  security-constraints:
+    - auth-roles:
+      - user
+    - security-collections:
+        - name: protected
+          patterns:
+            - "/hello/*"
+            - "/api/v1/*"
+  public-client: true
+  principal-attribute: preferred_name
