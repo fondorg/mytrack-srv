@@ -35,9 +35,4 @@ public class IssueService {
     public Optional<Issue> getIssue(Long issueId, Long projectId, User user) {
         return issueRepository.findById(issueId);
     }
-
-    public Page<Issue> findAllIssues(int page, int size, User user) {
-        //todo
-        return null;
-    }
 }
