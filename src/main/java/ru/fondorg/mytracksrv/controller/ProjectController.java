@@ -66,6 +66,6 @@ public class ProjectController {
     @GetMapping("/{id}/issues")
     public Page<Issue> getProjectIssues(@PathVariable Long id, @RequestParam int page, @RequestParam int size, HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
-        return projectService.getProjectIssues(id, user.getId(), page, size);
+        return projectService.getProjectIssues(id, user.getId(), page-1, size);
     }
 }
