@@ -17,12 +17,12 @@ public class IssueController {
     private final ServletRequestAttributesService requestAttributesService;
 
     @PostMapping
-    public Issue addIssue(@RequestBody Issue issue, HttpServletRequest request) {
-        return issueService.saveIssue(issue, requestAttributesService.getUserFromRequest(request));
+    public Issue addIssue(@RequestBody Issue issue, Long projectId, HttpServletRequest request) {
+        return issueService.saveIssue(issue, projectId, requestAttributesService.getUserFromRequest(request));
     }
 
     @GetMapping("/{id}")
-    public Issue getIssue(@PathVariable Long issueId) {
+    public Issue getIssue(@PathVariable Long issueId, HttpServletRequest request) {
         return null;
     }
 }

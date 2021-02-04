@@ -19,8 +19,8 @@ public class IssueService {
 
     private final ProjectService projectService;
 
-    @PreAuthorize("@projectService.isUserParticipatesInProject(#issue.project.id, #user.id)")
-    public Issue saveIssue(Issue issue, User user) {
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
+    public Issue saveIssue(Issue issue, Long projectId, User user) {
         issue.setAuthor(user);
         return issueRepository.save(issue);
     }
@@ -29,7 +29,6 @@ public class IssueService {
     public Issue updateIssue(Issue issue, User user) {
         return issueRepository.save(issue);
     }
-
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
     public Optional<Issue> getIssue(Long issueId, Long projectId, User user) {
