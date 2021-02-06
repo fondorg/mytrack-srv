@@ -21,7 +21,7 @@ public class Issue {
     @Column(name = "title", nullable = false)
     private String title;
 
-    @Column(name = "description")
+    @Column(name = "description", length = 2048)
     private String description;
 
     @ManyToOne(fetch = FetchType.LAZY)
