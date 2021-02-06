@@ -1,8 +1,6 @@
 package ru.fondorg.mytracksrv.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.fondorg.mytracksrv.domain.*;
@@ -112,10 +110,6 @@ public class ProjectService {
         return projectParticipantRepository.findDistinctByUserOrderByProjectDesc(user);
     }
 
-    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-    public Page<Issue> getProjectIssues(Long projectId, String userId, int page, int size) {
-        return issueRepository.findByProjectId(projectId, PageRequest.of(page, size));
-    }
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
     public Optional<Project> getProject(Long projectId, String userId) {

@@ -1,6 +1,5 @@
 package ru.fondorg.mytracksrv;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,9 +14,8 @@ import ru.fondorg.mytracksrv.repo.UserRepository;
 import ru.fondorg.mytracksrv.service.IssueService;
 import ru.fondorg.mytracksrv.service.ProjectService;
 
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 @SpringBootTest
 @DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
@@ -39,7 +37,7 @@ public class IssueServiceIntTest {
         Project project = MytrackTestUtils.instanceOfProject();
         project = projectService.createProject(project, user);
         Issue issue = createTestIssue(user, project);
-        Page<Issue> page = projectService.getProjectIssues(project.getId(), user.getId(), 0, 20);
+        Page<Issue> page = issueService.getProjectIssues(project.getId(), user.getId(), 0, 20);
         assertThat(page.getContent().size()).isEqualTo(1);
     }
 
@@ -69,7 +67,7 @@ public class IssueServiceIntTest {
         Project project = MytrackTestUtils.instanceOfProject();
         project = projectService.createProject(project, user);
         Issue issue = createTestIssue(user, project);
-        issueService.getIssue(issue.getId(), project.getId(), user).orElseThrow();
+        issueService.getProjectIssue(project.getId(), issue.getId(), user).orElseThrow();
     }
 
     @Test
@@ -109,18 +107,19 @@ public class IssueServiceIntTest {
             issue.setProject(project);
             issue.setTitle(String.format(fTitle, i));
             issue.setDescription(String.format(fDescription, i));
-            issueService.saveIssue(issue, user);
+            issueService.saveIssue(issue, project.getId(), user);
         }
         int pageSize = 5;
         int pageNum = 0;
-        Page<Issue> page = projectService.getProjectIssues(project.getId(), user.getId(), pageNum, pageSize);
+        Page<Issue> page = issueService.getProjectIssues(project.getId(), user.getId(), pageNum, pageSize);
         assertThat(page.getContent().size()).isEqualTo(pageSize);
         assertThat(page.getTotalPages()).isEqualTo(totalIssues / pageSize);
     }
 
     /**
      * Helper test method that creates new issue instance in the database
-     * @param user the creator of the issue
+     *
+     * @param user    the creator of the issue
      * @param project the project the issue belongs to
      * @return created issue
      */
@@ -130,6 +129,6 @@ public class IssueServiceIntTest {
         issue.setProject(project);
         issue.setTitle("test issue");
         issue.setDescription("test issue description");
-        return issueService.saveIssue(issue, user);
+        return issueService.saveIssue(issue, project.getId(), user);
     }
 }

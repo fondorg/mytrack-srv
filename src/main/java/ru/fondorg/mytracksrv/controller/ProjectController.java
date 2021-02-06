@@ -4,9 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
-import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
-import ru.fondorg.mytracksrv.domain.Issue;
 import ru.fondorg.mytracksrv.domain.Project;
 import ru.fondorg.mytracksrv.domain.User;
 import ru.fondorg.mytracksrv.exception.NotFoundException;
@@ -63,10 +61,5 @@ public class ProjectController {
         projectRepository.delete(p);
     }
 
-    @GetMapping("/{id}/issues")
-    public Page<Issue> getProjectIssues(@PathVariable Long id, @RequestParam(required = false, defaultValue = "1") Integer page,
-                                        @RequestParam(required = false, defaultValue = "20") Integer size, HttpServletRequest request) {
-        User user = requestAttributesService.getUserFromRequest(request);
-        return projectService.getProjectIssues(id, user.getId(), page - 1, size);
-    }
+    //todo: move to issue controller
 }
