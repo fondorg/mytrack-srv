@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: server
-        image: mytrack-srv
+        image: fondorg/mytrack-srv
         ports:
         - containerPort: 9090
         env:

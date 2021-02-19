@@ -12,6 +12,8 @@ spec:
   selector:
     app: keycloak
   type: LoadBalancer
+  #externalIPs:
+  #  - 192.168.0.108
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -34,6 +36,8 @@ spec:
         - name: keycloak
           image: quay.io/keycloak/keycloak:11.0.2
           env:
+            - name: DB_VENDOR
+              value: mysql
             - name: KEYCLOAK_USER
               value: "admin"
             - name: KEYCLOAK_PASSWORD

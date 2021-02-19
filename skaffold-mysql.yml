@@ -1,0 +1,14 @@
+apiVersion: skaffold/v2beta6
+kind: Config
+metadata:
+  name: mysql
+build:
+  artifacts: []
+#  - image: mytrack-srv
+#    context: .
+#    jib: {}
+deploy:
+  kubectl:
+    manifests:
+      - kubernetes-manifests/mysql-pv.yaml
+      - kubernetes-manifests/mysql-deployment.yaml

@@ -4,7 +4,7 @@ metadata:
   name: mytrack-srv
 build:
   artifacts:
-  - image: mytrack-srv
+  - image: fondorg/mytrack-srv
     context: .
     jib: {}
 deploy:
