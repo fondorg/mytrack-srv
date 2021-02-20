@@ -29,5 +29,8 @@ public class Issue {
 
     @ManyToOne(fetch = FetchType.LAZY)
     private User author;
-    
+
+    @Column(nullable = false)
+    private Boolean closed = false;
+
 }

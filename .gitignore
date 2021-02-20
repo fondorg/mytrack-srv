@@ -101,3 +101,4 @@ fabric.properties
 
 /config
 /kube-configs/**
+!/kube-configs/.gitkeep

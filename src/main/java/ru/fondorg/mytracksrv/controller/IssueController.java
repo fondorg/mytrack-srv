@@ -33,10 +33,21 @@ public class IssueController {
     }
 
     @GetMapping("/api/v1/projects/{projectId}/issues")
-    public Page<IssueDto> listProjectIssues(@PathVariable Long projectId, @RequestParam(required = false, defaultValue = "1") Integer page,
-                                            @RequestParam(required = false, defaultValue = "20") Integer size, HttpServletRequest request) {
+    public Page<IssueDto> listProjectIssues(@PathVariable Long projectId,
+                                            @RequestParam(required = false, defaultValue = "1") Integer page,
+                                            @RequestParam(required = false, defaultValue = "20") Integer size,
+                                            @RequestParam(required = false, defaultValue = "open") String scope,
+                                            HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
         Page<Issue> issues = issueService.getProjectIssues(projectId, user.getId(), page - 1, size);
         return issues.map(issue -> modelMapper.map(issue, IssueDto.class));
+    }
+
+
+    @DeleteMapping("/api/v1/projects/{projectId}/issues/{issueId}")
+    public void deleteIssue(@PathVariable Long projectId, @PathVariable Long issueId, HttpServletRequest request) {
+        User user = requestAttributesService.getUserFromRequest(request);
+        issueService.deleteIssue(projectId, user.getId(), issueId);
+
     }
 }

@@ -11,4 +11,5 @@ public class IssueDto {
     private String description;
     private Long projectId;
     private User author;
+    private Boolean closed;
 }

@@ -20,6 +20,11 @@ public class IssueService {
 
     private final ProjectService projectService;
 
+
+    public static final String ISSUE_SCOPE_OPENED = "open";
+    public static final String ISSUE_SCOPE_CLOSED = "closed";
+    public static final String ISSUE_SCOPE_ALL = "all";
+
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
     public Issue saveIssue(Issue issue, Long projectId, User user) {
         issue.setAuthor(user);
@@ -28,6 +33,9 @@ public class IssueService {
                         () -> {
                             throw new NotFoundException("Project not found");
                         });
+        if (null == issue.getClosed()) {
+            issue.setClosed(false);
+        }
         return issueRepository.save(issue);
     }
 
@@ -43,6 +51,23 @@ public class IssueService {
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
     public Page<Issue> getProjectIssues(Long projectId, String userId, int page, int size) {
+//        return issueRepository.findByProjectId(projectId, PageRequest.of(page, size));
+        return getProjectIssues(projectId, userId, page, size, ISSUE_SCOPE_OPENED);
+    }
+
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
+    public Page<Issue> getProjectIssues(Long projectId, String userId, int page, int size, String scope) {
+        if (scope.equals(ISSUE_SCOPE_OPENED)) {
+            return issueRepository.findByProjectIdAndClosed(projectId, false, PageRequest.of(page, size));
+        } else if (scope.equals(ISSUE_SCOPE_CLOSED)) {
+            return issueRepository.findByProjectIdAndClosed(projectId, true, PageRequest.of(page, size));
+        }
         return issueRepository.findByProjectId(projectId, PageRequest.of(page, size));
+    }
+
+
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
+    public void deleteIssue(Long projectId, String userId, Long issueId) {
+        issueRepository.deleteById(issueId);
     }
 }
