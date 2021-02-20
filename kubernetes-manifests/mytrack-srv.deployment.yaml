@@ -13,7 +13,7 @@ spec:
         app: mytrack-srv
     spec:
       containers:
-      - name: server
+      - name: mytrack-srv
         image: fondorg/mytrack-srv
         ports:
         - containerPort: 9090
@@ -24,3 +24,26 @@ spec:
         # Remove this to disable the debug build.
         - name: JAVA_TOOL_OPTIONS
           value: -agentlib:jdwp=transport=dt_socket,server=y,address=5005,suspend=n,quiet=y
+        - name: MYSQL_USER
+          valueFrom:
+            secretKeyRef:
+              name: mytrack-srv-secret
+              key: mysql.username
+        - name: MYSQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mytrack-srv-secret
+              key: mysql.password
+        - name: KEYCLOAK_RESOURCE
+          valueFrom:
+            secretKeyRef:
+              name: mytrack-srv-secret
+              key: keycloak.resource
+        volumeMounts:
+          - mountPath: /home/gradle/config
+            name: mytrack-srv-config
+      volumes:
+        - name: mytrack-srv-config
+          configMap:
+            name: mytrack-srv-config-file
+
