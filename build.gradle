@@ -41,7 +41,9 @@ test {
 
 jib {
 	from {
-		image 'gradle:jdk11'
+//		image 'gradle:jdk11'
+        image 'openjdk:11.0-jre'
+
 	}
 /*	to {
 		image 'mytrack'

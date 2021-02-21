@@ -40,7 +40,7 @@ spec:
               name: mytrack-srv-secret
               key: keycloak.resource
         volumeMounts:
-          - mountPath: /home/gradle/config
+          - mountPath: /config
             name: mytrack-srv-config
       volumes:
         - name: mytrack-srv-config
