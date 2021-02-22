@@ -31,4 +31,14 @@ jobs:
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
       - name: Build and publish image with Jib
         run: ./gradlew jib
-
+  deploy:
+    needs: [build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: k8s rolling update
+        uses: steebchen/kubectl@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DO }}
+        run: kubectl set image deployments/mytrack-srv mytrack-srv=fondorg/mytrack-srv:latest
