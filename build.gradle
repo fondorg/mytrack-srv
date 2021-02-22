@@ -45,9 +45,9 @@ jib {
         image 'openjdk:11.0-jre'
 
 	}
-/*	to {
-		image 'mytrack'
-	}*/
+	to {
+		image 'fondorg/mytrack-srv'
+	}
 }
 
 dependencyManagement {

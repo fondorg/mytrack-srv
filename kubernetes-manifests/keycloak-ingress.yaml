@@ -2,14 +2,31 @@ apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: keycloak
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
 spec:
   tls:
     - hosts:
-        - keycloak_host
+        - keycloak.fdrg.xyz
+        - mytrack-srv.fdrg.xyz
+        - mytrack.fdrg.xyz
+      secretName: mytrack-tls
   rules:
-    - host: keycloak_host
+    - host: keycloak.fdrg.xyz
       http:
         paths:
           - backend:
               serviceName: keycloak
               servicePort: 9999
+    - host: mytrack-srv.fdrg.xyz
+      http:
+        paths:
+          - backend:
+              serviceName: mytrack-srv
+              servicePort: 9090
+    - host: mytrack.fdrg.xyz
+      http:
+        paths:
+          - backend:
+              serviceName: mytrack-front
+              servicePort: 8080

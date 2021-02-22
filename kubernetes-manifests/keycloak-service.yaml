@@ -11,7 +11,8 @@ spec:
       targetPort: 8080
   selector:
     app: keycloak
-  type: LoadBalancer
+  #type: LoadBalancer
+  type: ClusterIP
   #externalIPs:
   #  - 192.168.0.108
 ---
