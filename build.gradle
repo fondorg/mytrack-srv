@@ -19,7 +19,6 @@ dependencies {
 	//implementation 'org.springframework.boot:spring-boot-starter-data-rest'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.boot:spring-boot-starter-security'
-	runtimeOnly 'com.h2database:h2'
 	runtimeOnly 'mysql:mysql-connector-java:8.0.22'
 	implementation 'org.keycloak:keycloak-spring-boot-starter'
 	implementation 'io.springfox:springfox-swagger2:3.0.0'
@@ -33,6 +32,7 @@ dependencies {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
 	testImplementation 'org.springframework.security:spring-security-test'
+	testRuntimeOnly 'com.h2database:h2'
 }
 
 test {
