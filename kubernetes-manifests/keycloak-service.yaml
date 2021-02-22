@@ -39,15 +39,27 @@ spec:
             - name: DB_VENDOR
               value: mysql
             - name: KEYCLOAK_USER
-              value: "admin"
+              valueFrom:
+                secretKeyRef:
+                  name: mytrack-srv-secret
+                  key: keycloak.user
             - name: KEYCLOAK_PASSWORD
-              value: "admin"
+              valueFrom:
+                secretKeyRef:
+                  name: mytrack-srv-secret
+                  key: keycloak.password
             - name: PROXY_ADDRESS_FORWARDING
               value: "true"
             - name: DB_USER
-              value: keycloak
+              valueFrom:
+                secretKeyRef:
+                  key: keycloak.dbuser
+                  name: mytrack-srv-secret
             - name: DB_PASSWORD
-              value: password
+              valueFrom:
+                secretKeyRef:
+                  key: keycloak.dbpassword
+                  name: mytrack-srv-secret
           ports:
             - name: http
               containerPort: 8080

@@ -28,15 +28,26 @@ spec:
         - image: mysql:5.6
           name: mysql
           env:
-            # Use secret in real usage
             - name: MYSQL_ROOT_PASSWORD
-              value: password
+              valueFrom:
+                secretKeyRef:
+                  key: mysql.rootpassword
+                  name: mytrack-srv-secret
             - name: MYSQL_USER
-              value: keycloak
-            - name: MYSQL_DATABASE
-              value: keycloak
+              valueFrom:
+                secretKeyRef:
+                  key: keycloak.dbuser
+                  name: mytrack-srv-secret
             - name: MYSQL_PASSWORD
-              value: password
+              valueFrom:
+                secretKeyRef:
+                  key: keycloak.dbpassword
+                  name: mytrack-srv-secret
+            - name: MYSQL_DATABASE
+              valueFrom:
+                secretKeyRef:
+                  key: keycloak.database
+                  name: mytrack-srv-secret
           ports:
             - containerPort: 3306
               name: mysql

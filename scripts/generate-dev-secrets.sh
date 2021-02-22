@@ -8,20 +8,33 @@ if [ -e "$SCRIPT_PATH/../$CONF_PATH" ]; then
   exit 0
 fi
 
-MYSQL_USERNAME="root"
-MYSQL_PASSWORD="password"
+MYSQL_ROOT_PASSWORD="password"
 KEYCLOAK_RESOURCE="mytrack-srv"
+KEYCLOAK_USER="admin"
+KEYCLOAK_PASSWORD="admin"
+KEYCLOAK_DB_USER="keycloak"
+KEYCLOAK_DB_PASSWORD="password"
+KEYCLOAK_DATABASE="keycloak"
 
 cat <<EOF
 Values used:
-mysql.username=$MYSQL_USERNAME
-mysql.password=$MYSQL_PASSWORD
+mysql.rootpassword=$MYSQL_ROOT_PASSWORD
 keycloak.resource=$KEYCLOAK_RESOURCE
+keycloak environment variables:
+keycloak.user=$KEYCLOAK_USER
+keycloak.password=$KEYCLOAK_PASSWORD
+keycloak.dbuser=$KEYCLOAK_DB_USER
+keycloak.dbpassword=$KEYCLOAK_DB_PASSWORD
+keycloak.database=$KEYCLOAK_DATABASE
 EOF
 
-ENC_MYSQL_USERNAME=$(echo "$MYSQL_USERNAME" | tr -d '\n' | base64)
-ENC_MYSQL_PASSWORD=$(echo "$MYSQL_PASSWORD" | tr -d '\n' | base64)
+ENC_MYSQL_ROOT_PASSWORD=$(echo "$MYSQL_ROOT_PASSWORD" | tr -d '\n' | base64)
 ENC_KEYCLOAK_RESOURCE=$(echo "$KEYCLOAK_RESOURCE" | tr -d '\n' | base64)
+ENC_KEYCLOAK_USER=$(echo "$KEYCLOAK_USER" | tr -d '\n' | base64)
+ENC_KEYCLOAK_PASSWORD=$(echo "$KEYCLOAK_PASSWORD" | tr -d '\n' | base64)
+ENC_KEYCLOAK_DB_USER=$(echo "$KEYCLOAK_DB_USER" | tr -d '\n' | base64)
+ENC_KEYCLOAK_DB_PASSWORD=$(echo "$KEYCLOAK_DB_PASSWORD" | tr -d '\n' | base64)
+ENC_KEYCLOAK_DATABASE=$(echo "$KEYCLOAK_DATABASE" | tr -d '\n' | base64)
 
 cat  > $CONF_PATH <<EOF
 apiVersion: v1
@@ -30,9 +43,13 @@ metadata:
   name: mytrack-srv-secret
 type: Opaque
 data:
-  mysql.username: $ENC_MYSQL_USERNAME
-  mysql.password: $ENC_MYSQL_PASSWORD
+  mysql.rootpassword: $ENC_MYSQL_ROOT_PASSWORD
   keycloak.resource: $ENC_KEYCLOAK_RESOURCE
+  keycloak.user: $ENC_KEYCLOAK_USER
+  keycloak.password: $ENC_KEYCLOAK_PASSWORD
+  keycloak.dbuser: $ENC_KEYCLOAK_DB_USER
+  keycloak.dbpassword: $ENC_KEYCLOAK_DB_PASSWORD
+  keycloak.database: $ENC_KEYCLOAK_DATABASE
 EOF
 
 echo "$CONF_PATH generated successfully"
