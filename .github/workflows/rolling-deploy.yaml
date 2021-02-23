@@ -37,10 +37,16 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Update deployment
+        uses: steebchen/kubectl@master
+        env:
+          KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DO }}
+        with:
+          args: "apply -f kubernetes-manifests/mytrack-srv.deployment.yaml"
       - name: k8s rolling update
         uses: steebchen/kubectl@master
         env:
           KUBE_CONFIG_DATA: ${{ secrets.KUBE_CONFIG_DO }}
         with:
 #          args: '"set image deployments/mytrack-srv mytrack-srv=fondorg/mytrack-srv:latest"'
-          args: "rollout restart deployment/mytrack-srv"
+          args: "rollout restart deployment/uses: steebchen/kubectlmytrack-srv"
