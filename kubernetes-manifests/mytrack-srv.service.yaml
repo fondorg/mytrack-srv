@@ -3,7 +3,7 @@ kind: Service
 metadata:
   name: mytrack-srv
 spec:
-  type: LoadBalancer
+  type: ClusterIP
   selector:
     app: mytrack-srv
   ports:
