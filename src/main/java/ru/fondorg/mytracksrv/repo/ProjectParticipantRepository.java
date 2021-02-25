@@ -1,5 +1,7 @@
 package ru.fondorg.mytracksrv.repo;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.fondorg.mytracksrv.domain.ProjectParticipant;
 import ru.fondorg.mytracksrv.domain.ProjectParticipantKey;
@@ -20,6 +22,6 @@ public interface ProjectParticipantRepository extends JpaRepository<ProjectParti
 
     void deleteProjectParticipantById(ProjectParticipantKey id);
 
-    List<ProjectProjection> findDistinctByUserOrderByProjectDesc(User user);
+    Page<ProjectProjection> findDistinctByUserOrderByProjectDesc(User user, Pageable pageable);
 
 }
