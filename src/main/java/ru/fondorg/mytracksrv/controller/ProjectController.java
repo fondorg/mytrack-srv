@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.keycloak.KeycloakPrincipal;
 import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 import ru.fondorg.mytracksrv.domain.Project;
 import ru.fondorg.mytracksrv.domain.User;
@@ -15,7 +16,6 @@ import ru.fondorg.mytracksrv.service.ProjectService;
 import ru.fondorg.mytracksrv.service.ServletRequestAttributesService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/projects")
@@ -40,18 +40,18 @@ public class ProjectController {
     }
 
     @GetMapping
-    public List<ProjectProjection> getAllProjects(HttpServletRequest request) {
-        /*KeycloakSecurityContext context = (KeycloakSecurityContext) request.getAttribute(KeycloakSecurityContext.class.getName());
-        return projectRepository.findByOwner(context.getToken().getSubject());*/
+    public Page<ProjectProjection> getAllProjects(
+            @RequestParam(required = false, defaultValue = "1") Integer page,
+            @RequestParam(required = false, defaultValue = "20") Integer size,
+            HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
-        return projectService.findUserProjects(user);
+        return projectService.findUserProjects(user, page -1, size);
     }
 
     @PostMapping
     public Project addProject(@RequestBody Project project, HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
         projectService.createProject(project, user);
-        //projectRepository.save(project);
         return project;
     }
 

@@ -1,6 +1,8 @@
 package ru.fondorg.mytracksrv.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.fondorg.mytracksrv.domain.*;
@@ -106,8 +108,8 @@ public class ProjectService {
      * @param user the participant of the projects
      * @return list of projects where the specified user participates
      */
-    public List<ProjectProjection> findUserProjects(User user) {
-        return projectParticipantRepository.findDistinctByUserOrderByProjectDesc(user);
+    public Page<ProjectProjection> findUserProjects(User user, int page, int size) {
+        return projectParticipantRepository.findDistinctByUserOrderByProjectDesc(user, PageRequest.of(page, size));
     }
 
 

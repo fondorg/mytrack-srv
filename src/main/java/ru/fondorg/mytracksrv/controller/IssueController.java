@@ -39,7 +39,7 @@ public class IssueController {
                                             @RequestParam(required = false, defaultValue = "open") String scope,
                                             HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
-        Page<Issue> issues = issueService.getProjectIssues(projectId, user.getId(), page - 1, size);
+        Page<Issue> issues = issueService.getProjectIssues(projectId, user.getId(), page - 1, size, scope);
         return issues.map(issue -> modelMapper.map(issue, IssueDto.class));
     }
 

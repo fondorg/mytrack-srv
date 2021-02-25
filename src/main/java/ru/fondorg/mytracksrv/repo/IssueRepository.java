@@ -14,4 +14,6 @@ public interface IssueRepository extends JpaRepository<Issue, Long> {
     Page<Issue> findByProjectId(Long projectId, Pageable pageable);
 
     Page<Issue> findByProjectIdAndClosed(Long projectId, Boolean closed, Pageable pageable);
+
+    Long countByProjectId(Long projectId);
 }
