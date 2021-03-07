@@ -33,7 +33,7 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping("/{id}")
-    public Project getProject(@PathVariable Long id, HttpServletRequest request) {
+    public Project getProject(@PathVariable java.lang.Long id, HttpServletRequest request) {
         //return projectRepository.findByIdAndOwner(id, principal.getName()).orElseThrow(() -> new NotFoundException("Project not found"));
         User user = requestAttributesService.getUserFromRequest(request);
         return projectService.getProject(id, user.getId()).orElseThrow(() -> new NotFoundException("Project not found"));
@@ -56,10 +56,9 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProject(@PathVariable Long id, KeycloakPrincipal<KeycloakSecurityContext> principal) {
+    public void deleteProject(@PathVariable java.lang.Long id, KeycloakPrincipal<KeycloakSecurityContext> principal) {
         Project p = projectRepository.findByIdAndOwner(id, principal.getName()).orElseThrow(() -> new NotFoundException("Project not found"));
         projectRepository.delete(p);
     }
 
-    //todo: move to issue controller
 }

@@ -6,11 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.fondorg.mytracksrv.domain.*;
+import ru.fondorg.mytracksrv.domain.Project;
 import ru.fondorg.mytracksrv.repo.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,7 +27,7 @@ public class ProjectService {
 
     private final ServletRequestAttributesService requestAttributesService;
 
-    private final IssueRepository issueRepository;
+    private final ProjectPreDeleteHandler projectPreDeletionHandler;
 
     /**
      * Creates new project in the repository, adds specified user to the project participants
@@ -114,7 +114,15 @@ public class ProjectService {
 
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-    public Optional<Project> getProject(Long projectId, String userId) {
+    public Optional<Project> getProject(java.lang.Long projectId, String userId) {
         return projectRepository.findById(projectId);
+    }
+
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
+    public void deleteProject(java.lang.Long projectId, String userId) {
+        boolean preDeletions = projectPreDeletionHandler.handlePreDeletionActions(projectId, userId);
+        if (preDeletions) {
+            projectRepository.deleteById(projectId);
+        }
     }
 }
