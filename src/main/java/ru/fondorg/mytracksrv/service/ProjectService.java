@@ -6,11 +6,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.fondorg.mytracksrv.domain.*;
+import ru.fondorg.mytracksrv.domain.Project;
+import ru.fondorg.mytracksrv.exception.ModelDeleteException;
 import ru.fondorg.mytracksrv.repo.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,7 +28,7 @@ public class ProjectService {
 
     private final ServletRequestAttributesService requestAttributesService;
 
-    private final IssueRepository issueRepository;
+    private final ProjectPreDeleteHandler projectPreDeletionHandler;
 
     /**
      * Creates new project in the repository, adds specified user to the project participants
@@ -116,5 +117,19 @@ public class ProjectService {
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
     public Optional<Project> getProject(Long projectId, String userId) {
         return projectRepository.findById(projectId);
+    }
+
+    @Transactional
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
+    public void deleteProject(Long projectId, User user) {
+        projectRepository.findById(projectId).ifPresent(project -> {
+            removeUserFromProject(project, user);
+            boolean preDeletions = projectPreDeletionHandler.handlePreDeletionActions(projectId, user.getId());
+            if (preDeletions) {
+                projectRepository.deleteById(projectId);
+            } else {
+                throw new ModelDeleteException(String.format("Failed to delete project with id %d", projectId));
+            }
+        });
     }
 }

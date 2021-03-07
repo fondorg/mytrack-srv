@@ -15,7 +15,7 @@ public class Issue {
 
     @Id
     @GeneratedValue
-    private Long id;
+    private java.lang.Long id;
 
     @NotNull
     @Column(name = "title", nullable = false)

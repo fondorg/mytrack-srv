@@ -8,10 +8,10 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ProjectRepository extends JpaRepository<Project, Long> {
+public interface ProjectRepository extends JpaRepository<Project, java.lang.Long> {
 
     List<Project> findByOwner(String owner);
 
-    Optional<Project> findByIdAndOwner(Long id, String owner);
+    Optional<Project> findByIdAndOwner(java.lang.Long id, String owner);
 
 }

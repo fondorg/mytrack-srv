@@ -70,4 +70,9 @@ public class IssueService {
     public void deleteIssue(Long projectId, String userId, Long issueId) {
         issueRepository.deleteById(issueId);
     }
+
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
+    public void deleteAllProjectIssues(Long projectId, String userId) {
+        issueRepository.deleteByProjectId(projectId);
+    }
 }

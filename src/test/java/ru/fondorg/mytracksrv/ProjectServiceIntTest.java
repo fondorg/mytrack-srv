@@ -3,21 +3,23 @@ package ru.fondorg.mytracksrv;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
-import ru.fondorg.mytracksrv.domain.ParticipantRole;
-import ru.fondorg.mytracksrv.domain.Project;
-import ru.fondorg.mytracksrv.domain.ProjectParticipant;
-import ru.fondorg.mytracksrv.domain.User;
+import ru.fondorg.mytracksrv.domain.*;
+import ru.fondorg.mytracksrv.repo.IssueRepository;
 import ru.fondorg.mytracksrv.repo.ProjectParticipantRepository;
 import ru.fondorg.mytracksrv.repo.ProjectRepository;
 import ru.fondorg.mytracksrv.repo.UserRepository;
+import ru.fondorg.mytracksrv.service.IssueService;
 import ru.fondorg.mytracksrv.service.ProjectService;
 import ru.fondorg.mytracksrv.service.UserService;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static ru.fondorg.mytracksrv.MytrackTestUtils.instanceOfProject;
 import static ru.fondorg.mytracksrv.MytrackTestUtils.instanceOfUser;
 
@@ -42,6 +44,12 @@ public class ProjectServiceIntTest {
 
     @Autowired
     ProjectService projectService;
+
+    @Autowired
+    IssueService issueService;
+
+    @Autowired
+    IssueRepository issueRepository;
 
     @Test
     public void createProject() throws Exception {
@@ -113,12 +121,42 @@ public class ProjectServiceIntTest {
     }
 
 
+    @Test
+    @WithMockUser
+    public void projectDeletion() {
+        //arrange
+        User user = MytrackTestUtils.instanceOfUser("111");
+        Project project = createTestProject(user);
+        java.lang.Long projectId = project.getId();
+        Issue issue = new Issue();
+        issue.setTitle("Test Issue");
+        issue.setDescription("Test description");
+        issue.setProject(project);
+        issue.setClosed(false);
+        issue.setAuthor(user);
+        issueService.saveIssue(issue, projectId, user);
+
+        //act
+        projectService.deleteProject(projectId, user);
+
+        //assert
+        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> {
+            issueService.getProjectIssues(projectId, user.getId(), 0, 20, IssueService.ISSUE_SCOPE_ALL);
+        });
+
+        assertThat(issueRepository.findByProjectId(projectId, PageRequest.of(0, 20)).isEmpty()).isTrue();
+
+        List<ProjectParticipant> participants = projectParticipantRepository.findDistinctByProjectId(projectId);
+        assertThat(participants).isEmpty();
+    }
+
+
     private Project createTestProject(User user) {
         Project project = instanceOfProject();
         return projectService.createProject(project, user);
     }
 
-    private void assertParticipantsCount(Long projectId, int expected) {
+    private void assertParticipantsCount(java.lang.Long projectId, int expected) {
         List<ProjectParticipant> participants = projectParticipantRepository.findDistinctByProjectId(projectId);
         assertThat(participants.size()).isEqualTo(expected);
     }

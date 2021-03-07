@@ -18,9 +18,7 @@ public interface ProjectParticipantRepository extends JpaRepository<ProjectParti
 
     Optional<ProjectParticipant> findByUserIdAndProjectId(String userId, Long projectId);
 
-    //void deleteBy(Project project, User user);
-
-    void deleteProjectParticipantById(ProjectParticipantKey id);
+    void deleteByProjectId(Long projectId);
 
     Page<ProjectProjection> findDistinctByUserOrderByProjectDesc(User user, Pageable pageable);
 

@@ -1,8 +1,6 @@
 package ru.fondorg.mytracksrv.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.keycloak.KeycloakPrincipal;
-import org.keycloak.KeycloakSecurityContext;
 import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
 import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
@@ -33,7 +31,7 @@ public class ProjectController {
     private final ProjectService projectService;
 
     @GetMapping("/{id}")
-    public Project getProject(@PathVariable Long id, HttpServletRequest request) {
+    public Project getProject(@PathVariable java.lang.Long id, HttpServletRequest request) {
         //return projectRepository.findByIdAndOwner(id, principal.getName()).orElseThrow(() -> new NotFoundException("Project not found"));
         User user = requestAttributesService.getUserFromRequest(request);
         return projectService.getProject(id, user.getId()).orElseThrow(() -> new NotFoundException("Project not found"));
@@ -45,7 +43,7 @@ public class ProjectController {
             @RequestParam(required = false, defaultValue = "20") Integer size,
             HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
-        return projectService.findUserProjects(user, page -1, size);
+        return projectService.findUserProjects(user, page - 1, size);
     }
 
     @PostMapping
@@ -56,10 +54,11 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProject(@PathVariable Long id, KeycloakPrincipal<KeycloakSecurityContext> principal) {
-        Project p = projectRepository.findByIdAndOwner(id, principal.getName()).orElseThrow(() -> new NotFoundException("Project not found"));
-        projectRepository.delete(p);
+    public void deleteProject(@PathVariable java.lang.Long id, HttpServletRequest request) {
+        User user = requestAttributesService.getUserFromRequest(request);
+        projectService.deleteProject(id, user);
+//        Project p = projectRepository.findByIdAndOwner(id, principal.getName()).orElseThrow(() -> new NotFoundException("Project not found"));
+//        projectRepository.delete(p);
     }
 
-    //todo: move to issue controller
 }
