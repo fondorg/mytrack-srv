@@ -19,7 +19,6 @@ public interface PreDeletionAction<ID> {
      * @return true if it is ok to proceed with target deletion, false otherwise
      * @throws ModelDeleteException if deletion goes wrong
      */
-    @Transactional
     boolean preDelete(ID targetId, @Nullable String userId) throws ModelDeleteException;
 
 }

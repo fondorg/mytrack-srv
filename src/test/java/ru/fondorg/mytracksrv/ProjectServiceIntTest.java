@@ -3,11 +3,12 @@ package ru.fondorg.mytracksrv;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.fondorg.mytracksrv.domain.*;
-import ru.fondorg.mytracksrv.domain.Project;
+import ru.fondorg.mytracksrv.repo.IssueRepository;
 import ru.fondorg.mytracksrv.repo.ProjectParticipantRepository;
 import ru.fondorg.mytracksrv.repo.ProjectRepository;
 import ru.fondorg.mytracksrv.repo.UserRepository;
@@ -18,6 +19,7 @@ import ru.fondorg.mytracksrv.service.UserService;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 import static ru.fondorg.mytracksrv.MytrackTestUtils.instanceOfProject;
 import static ru.fondorg.mytracksrv.MytrackTestUtils.instanceOfUser;
 
@@ -45,6 +47,9 @@ public class ProjectServiceIntTest {
 
     @Autowired
     IssueService issueService;
+
+    @Autowired
+    IssueRepository issueRepository;
 
     @Test
     public void createProject() throws Exception {
@@ -132,11 +137,15 @@ public class ProjectServiceIntTest {
         issueService.saveIssue(issue, projectId, user);
 
         //act
-        projectService.deleteProject(projectId, user.getId());
+        projectService.deleteProject(projectId, user);
 
         //assert
-        Page<Issue> projectIssues = issueService.getProjectIssues(projectId, user.getId(), 0, 20);
-        assertThat(projectIssues.getContent()).isEmpty();
+        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> {
+            issueService.getProjectIssues(projectId, user.getId(), 0, 20, IssueService.ISSUE_SCOPE_ALL);
+        });
+
+        assertThat(issueRepository.findByProjectId(projectId, PageRequest.of(0, 20)).isEmpty()).isTrue();
+
         List<ProjectParticipant> participants = projectParticipantRepository.findDistinctByProjectId(projectId);
         assertThat(participants).isEmpty();
     }
