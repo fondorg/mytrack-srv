@@ -6,9 +6,11 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.fondorg.mytracksrv.domain.Tag;
+import ru.fondorg.mytracksrv.repo.ProjectRepository;
 import ru.fondorg.mytracksrv.repo.TagRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -16,28 +18,49 @@ public class TagService {
     private final IssueService issueService;
 
     private final TagRepository tagRepository;
-    private final ProjectService projectService;
+
+    private final ProjectRepository projectRepository;
 
     /**
      * Creates new tag
-     * @param tag Tag object to persist
+     *
+     * @param tag    Tag object to persist
      * @param userId Current user id
      * @return
      */
     @PreAuthorize("#tag.project == null || @projectService.isUserParticipatesInProject(#tag.project.id, #userId)")
-    public Tag newTag(Tag tag, String userId) {
+    public Tag saveTag(Tag tag, String userId) {
+        return tagRepository.save(tag);
+    }
+
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
+    public Tag saveProjectTag(Tag tag, Long projectId, String userId) {
+        projectRepository.findById(projectId).ifPresent(tag::setProject);
         return tagRepository.save(tag);
     }
 
     /**
      * Gets a list of tags for the specified project
+     *
      * @param projectId Project id
-     * @param userId Current user
+     * @param userId    Current user
      * @return List of tags for specific project
      */
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
     public List<Tag> getProjectTags(Long projectId, String userId) {
         return tagRepository.findByProjectIdOrProjectIsNull(projectId);
+    }
+
+    /**
+     * Gets project tag with the specified id
+     * @param projectId project id
+     * @param tagId tag id
+     * @param userId current authenticated user id
+     * @return Tag if found
+     */
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
+    public Optional<Tag> getProjectTag(Long projectId, Long tagId, String userId) {
+        return tagRepository.findById(tagId);
     }
 
     /**

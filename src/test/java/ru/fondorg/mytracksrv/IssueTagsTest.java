@@ -39,11 +39,11 @@ public class IssueTagsTest {
         Project project1 = projectBootstrap.bootstrapProject("Project 1", user);
         Project project2 = projectBootstrap.bootstrapProject("Project 2", user);
         Tag commonTag = new Tag("CommonTag", "#ffffff");
-        tagService.newTag(commonTag, user.getId());
-        Tag project1Tag = new Tag("Project1Tag", "#ffffff", project1);
-        tagService.newTag(project1Tag, user.getId());
-        Tag project2Tag = new Tag("Project2Tag", "#ffffff", project2);
-        tagService.newTag(project2Tag, user.getId());
+        tagService.saveTag(commonTag, user.getId());
+        Tag project1Tag = new Tag("Project1Tag", "#ffffff");
+        tagService.saveProjectTag(project1Tag, project1.getId(), user.getId());
+        Tag project2Tag = new Tag("Project2Tag", "#ffffff");
+        tagService.saveProjectTag(project2Tag, project2.getId(), user.getId());
 
         List<Tag> project1Tags = tagService.getProjectTags(project1.getId(), user.getId());
         List<Tag> project2Tags = tagService.getProjectTags(project2.getId(), user.getId());
@@ -54,15 +54,14 @@ public class IssueTagsTest {
         assertThat(project2Tags.size()).isEqualTo(2);
     }
 
-
     @Test
     @WithMockUser
-    public void tagsAccessViolationCheck() {
+    public void tagsAccessViolation() {
         User user = MytrackTestUtils.instanceOfUser("111");
         User alien = userRepository.save(MytrackTestUtils.instanceOfUser("alien"));
         Project project = projectBootstrap.bootstrapProject("Project 1", user);
-        Tag projectTag = new Tag("ProjectTag", "#ffffff", project);
-        tagService.newTag(projectTag, user.getId());
+        Tag projectTag = new Tag("ProjectTag", "#ffffff");
+        tagService.saveProjectTag(projectTag, project.getId(), user.getId());
         assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() ->
                 tagService.getProjectTags(project.getId(), alien.getId()));
     }
@@ -72,25 +71,23 @@ public class IssueTagsTest {
     public void getCommonTags() {
         User user = MytrackTestUtils.instanceOfUser("111");
         Project project = projectBootstrap.bootstrapProject("Project 1", user);
-        Tag projectTag = new Tag("ProjectTag", "#ffffff", project);
+        Tag projectTag = new Tag("ProjectTag", "#ffffff");
         Tag commonTag1 = new Tag("Tag1", "#ffffff");
         Tag commonTag2 = new Tag("Tag2", "#ffffff");
-        tagService.newTag(projectTag, user.getId());
-        tagService.newTag(commonTag1, user.getId());
-        tagService.newTag(commonTag2, user.getId());
+        tagService.saveProjectTag(projectTag, project.getId(), user.getId());
+        tagService.saveTag(commonTag1, user.getId());
+        tagService.saveTag(commonTag2, user.getId());
         Page<Tag> tags = tagService.getCommonTags(0, 20);
         assertThat(tags.getContent().size()).isEqualTo(2);
     }
-
 
     @Test
     public void commonTagsAccessViolation() {
         assertThatExceptionOfType(AuthenticationCredentialsNotFoundException.class).isThrownBy(() -> {
             Tag commonTag2 = new Tag("CommonTag", "#ffffff");
-            tagService.newTag(commonTag2, "111");
+            tagService.saveTag(commonTag2, "111");
         });
     }
-
 
     @Test
     @WithMockUser
@@ -98,10 +95,33 @@ public class IssueTagsTest {
         User user = MytrackTestUtils.instanceOfUser("111");
         Project project = projectBootstrap.bootstrapProject("Project 1", user);
         Tag projectTag = new Tag("Tag1", "#ffffff", project);
-        projectTag = tagService.newTag(projectTag, user.getId());
+        projectTag = tagService.saveTag(projectTag, user.getId());
         tagService.deleteTag(projectTag.getId(), project.getId(), user.getId());
 
         List<Tag> projectTags = tagService.getProjectTags(project.getId(), user.getId());
         assertThat(projectTags).isEmpty();
+    }
+
+    @Test
+    @WithMockUser
+    public void deleteDagAccessViolation() {
+        //assert
+        User user = MytrackTestUtils.instanceOfUser("111");
+        User alien = userRepository.save(MytrackTestUtils.instanceOfUser("alien"));
+        Project project = projectBootstrap.bootstrapProject("Project 1", user);
+        Tag projectTag = tagService.saveTag(new Tag("ProjectTag", "#ffffff", project), user.getId());
+        //act and assert
+        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> {
+            tagService.deleteTag(projectTag.getId(), project.getId(), alien.getId());
+        });
+    }
+
+    @Test
+    @WithMockUser
+    public void getProjectTagById() {
+        User user = MytrackTestUtils.instanceOfUser("111");
+        Project project = projectBootstrap.bootstrapProject("Project 1", user);
+        Tag projectTag = tagService.saveTag(new Tag("ProjectTag", "#ffffff", project), user.getId());
+        assertThat(tagService.getProjectTag(project.getId(), projectTag.getId(), user.getId())).isPresent();
     }
 }

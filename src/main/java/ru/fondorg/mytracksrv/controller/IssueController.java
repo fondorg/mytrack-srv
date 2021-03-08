@@ -48,6 +48,5 @@ public class IssueController {
     public void deleteIssue(@PathVariable Long projectId, @PathVariable Long issueId, HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
         issueService.deleteIssue(projectId, user.getId(), issueId);
-
     }
 }

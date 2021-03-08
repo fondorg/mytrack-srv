@@ -16,8 +16,7 @@ public class ProjectBootstrap {
 
 
     public Project bootstrapProject(String title) {
-        Project project = MytrackTestUtils.instanceOfProject(title);
-        return projectService.createProject(project, null);
+        return bootstrapProject(title, null);
     }
 
     public Project bootstrapProject(String title, User user) {
