@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Set;
 
 @Getter
 @Setter
@@ -32,5 +33,8 @@ public class Issue {
 
     @Column(nullable = false)
     private Boolean closed = false;
+
+    @OneToMany(targetEntity = Tag.class, cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<Tag> tags;
 
 }

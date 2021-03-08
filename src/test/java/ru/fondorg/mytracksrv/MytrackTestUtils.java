@@ -23,8 +23,12 @@ public class MytrackTestUtils {
     }
 
     public static Project instanceOfProject() {
+        return instanceOfProject("Test project");
+    }
+
+    public static Project instanceOfProject(String title) {
         Project project = new Project();
-        project.setTitle("Test project");
+        project.setTitle(title);
         project.setDescription("test description");
         return project;
     }
