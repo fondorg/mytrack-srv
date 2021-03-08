@@ -96,7 +96,7 @@ public class IssueTagsTest {
         Project project = projectBootstrap.bootstrapProject("Project 1", user);
         Tag projectTag = new Tag("Tag1", "#ffffff", project);
         projectTag = tagService.saveTag(projectTag, user.getId());
-        tagService.deleteTag(projectTag.getId(), project.getId(), user.getId());
+        tagService.deleteProjectTag(projectTag.getId(), project.getId(), user.getId());
 
         List<Tag> projectTags = tagService.getProjectTags(project.getId(), user.getId());
         assertThat(projectTags).isEmpty();
@@ -112,7 +112,7 @@ public class IssueTagsTest {
         Tag projectTag = tagService.saveTag(new Tag("ProjectTag", "#ffffff", project), user.getId());
         //act and assert
         assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> {
-            tagService.deleteTag(projectTag.getId(), project.getId(), alien.getId());
+            tagService.deleteProjectTag(projectTag.getId(), project.getId(), alien.getId());
         });
     }
 
@@ -123,5 +123,12 @@ public class IssueTagsTest {
         Project project = projectBootstrap.bootstrapProject("Project 1", user);
         Tag projectTag = tagService.saveTag(new Tag("ProjectTag", "#ffffff", project), user.getId());
         assertThat(tagService.getProjectTag(project.getId(), projectTag.getId(), user.getId())).isPresent();
+    }
+
+    @Test
+    @WithMockUser
+    public void getCommonTagById() {
+        tagService.saveTag(new Tag("CommonTag", "#ffffff"), "111");
+        assertThat(tagService.getCommonTag(1L)).isPresent();
     }
 }

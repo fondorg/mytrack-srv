@@ -33,6 +33,11 @@ public class TagService {
         return tagRepository.save(tag);
     }
 
+    @PreAuthorize("isAuthenticated()")
+    public Tag saveTag(Tag tag) {
+        return tagRepository.save(tag);
+    }
+
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
     public Tag saveProjectTag(Tag tag, Long projectId, String userId) {
         projectRepository.findById(projectId).ifPresent(tag::setProject);
@@ -73,9 +78,19 @@ public class TagService {
         return tagRepository.findByProjectIsNull(PageRequest.of(page, size));
     }
 
+    @PreAuthorize("isAuthenticated()")
+    public Optional<Tag> getCommonTag(Long tagId) {
+        return tagRepository.findById(tagId);
+
+    }
+
     @PreAuthorize("#projectId == null || @projectService.isUserParticipatesInProject(#projectId, #userId)")
-    public void deleteTag(Long tagId, Long projectId, String userId) {
+    public void deleteProjectTag(Long tagId, Long projectId, String userId) {
         tagRepository.deleteById(tagId);
     }
 
+    @PreAuthorize("isAuthenticated()")
+    public void deleteCommonTag(Long tagId) {
+        tagRepository.deleteById(tagId);
+    }
 }
