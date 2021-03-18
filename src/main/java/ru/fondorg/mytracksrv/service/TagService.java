@@ -58,9 +58,10 @@ public class TagService {
 
     /**
      * Gets project tag with the specified id
+     *
      * @param projectId project id
-     * @param tagId tag id
-     * @param userId current authenticated user id
+     * @param tagId     tag id
+     * @param userId    current authenticated user id
      * @return Tag if found
      */
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
@@ -92,5 +93,12 @@ public class TagService {
     @PreAuthorize("isAuthenticated()")
     public void deleteCommonTag(Long tagId) {
         tagRepository.deleteById(tagId);
+    }
+
+
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
+    public List<Tag> getIssueTags(Long projectId, Long issueId, String userID) {
+        //todo
+        return null;
     }
 }
