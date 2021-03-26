@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import ru.fondorg.mytracksrv.domain.Tag;
+import ru.fondorg.mytracksrv.repo.IssueRepository;
 import ru.fondorg.mytracksrv.repo.ProjectRepository;
 import ru.fondorg.mytracksrv.repo.TagRepository;
 
@@ -15,7 +16,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class TagService {
-    private final IssueService issueService;
+    private final IssueRepository issueRepository;
 
     private final TagRepository tagRepository;
 
@@ -97,8 +98,7 @@ public class TagService {
 
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-    public List<Tag> getIssueTags(Long projectId, Long issueId, String userID) {
-        //todo
-        return null;
+    public List<Tag> getIssueTags(Long projectId, Long issueId, String userId) {
+        return issueRepository.findIssueTags(issueId);
     }
 }

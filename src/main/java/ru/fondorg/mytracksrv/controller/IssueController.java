@@ -26,6 +26,12 @@ public class IssueController {
         return issueService.saveIssue(issue, projectId, requestAttributesService.getUserFromRequest(request));
     }
 
+    @PutMapping(ApiV1Paths.PROJECT_ISSUE)
+    public void updateIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Issue issue, HttpServletRequest request) {
+        Issue reloaded = issueService.updateIssue(projectId, issue, requestAttributesService.getUserFromRequest(request).getId());
+//        return modelMapper.map(reloaded, IssueDto.class);
+    }
+
     @GetMapping("/api/v1/projects/{projectId}/issues/{issueId}")
     public IssueDto getProjectIssue(@PathVariable Long projectId, @PathVariable Long issueId, HttpServletRequest request) {
         return issueService.getProjectIssue(projectId, issueId, requestAttributesService.getUserFromRequest(request))

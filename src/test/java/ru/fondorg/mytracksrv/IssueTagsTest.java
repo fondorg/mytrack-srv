@@ -8,13 +8,16 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.fondorg.mytracksrv.domain.Issue;
 import ru.fondorg.mytracksrv.domain.Project;
 import ru.fondorg.mytracksrv.domain.Tag;
 import ru.fondorg.mytracksrv.domain.User;
 import ru.fondorg.mytracksrv.repo.IssueRepository;
 import ru.fondorg.mytracksrv.repo.UserRepository;
+import ru.fondorg.mytracksrv.service.IssueService;
 import ru.fondorg.mytracksrv.service.TagService;
 
+import java.util.HashSet;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,6 +34,8 @@ public class IssueTagsTest {
     UserRepository userRepository;
     @Autowired
     TagService tagService;
+    @Autowired
+    IssueService issueService;
 
     @Test
     @WithMockUser
@@ -130,5 +135,22 @@ public class IssueTagsTest {
     public void getCommonTagById() {
         tagService.saveTag(new Tag("CommonTag", "#ffffff"), "111");
         assertThat(tagService.getCommonTag(1L)).isPresent();
+    }
+
+    @Test
+    @WithMockUser
+    public void createAndFindIssueTag() {
+        User user = MytrackTestUtils.instanceOfUser("111");
+        Project project = projectBootstrap.bootstrapProject("Project 1", user);
+        Issue issue = new Issue();
+        issue.setTitle("Test issue");
+        issue.setDescription("Test issue");
+        issue.setTags(new HashSet<>());
+        issue.getTags().add(new Tag("IssueTag", "#000000", project));
+        issue = issueService.saveIssue(issue, project.getId(), user);
+        List<Tag> issueTags = issueRepository.findIssueTags(issue.getId());
+        assertThat(issueTags.size()).isEqualTo(issue.getTags().size());
+        List<Tag> projectTags = tagService.getProjectTags(project.getId(), user.getId());
+        assertThat(projectTags.size()).isEqualTo(issueTags.size());
     }
 }

@@ -39,8 +39,9 @@ public class IssueService {
         return issueRepository.save(issue);
     }
 
-    @PreAuthorize("@projectService.isUserParticipatesInProject(#issue.project.id, #user.id)")
-    public Issue updateIssue(Issue issue, User user) {
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
+    public Issue updateIssue(Long projectId, Long issueId, Issue issue, String userId) {
+        Issue issue1
         return issueRepository.save(issue);
     }
 

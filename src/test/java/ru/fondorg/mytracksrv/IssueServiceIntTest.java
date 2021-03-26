@@ -79,7 +79,7 @@ public class IssueServiceIntTest {
         Issue issue = createTestIssue(user, project);
         String updatedTitle = "New issue title";
         issue.setTitle(updatedTitle);
-        Issue updatedIssue = issueService.updateIssue(issue, user);
+        Issue updatedIssue = issueService.updateIssue(project.getId(), issue, user.getId());
         assertThat(updatedIssue.getTitle()).isEqualTo(updatedTitle);
     }
 

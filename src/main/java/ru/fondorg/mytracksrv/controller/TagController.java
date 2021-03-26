@@ -57,4 +57,10 @@ public class TagController {
     public void deleteCommonTag(@PathVariable Long tagId) {
         tagService.deleteCommonTag(tagId);
     }
+
+
+    @GetMapping(ApiV1Paths.ISSUE_TAGS)
+    public List<Tag> getIssueTags(@PathVariable Long projectId, @PathVariable Long issueId, HttpServletRequest request) {
+        return tagService.getIssueTags(projectId, issueId, requestAttributesService.getUserFromRequest(request).getId());
+    }
 }
