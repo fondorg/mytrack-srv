@@ -3,11 +3,12 @@ package ru.fondorg.mytracksrv.controller;
 import lombok.RequiredArgsConstructor;
 import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate;
 import org.springframework.data.domain.Page;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import ru.fondorg.mytracksrv.domain.Project;
 import ru.fondorg.mytracksrv.domain.User;
 import ru.fondorg.mytracksrv.exception.NotFoundException;
-import ru.fondorg.mytracksrv.repo.ProjectProjection;
+import ru.fondorg.mytracksrv.repo.ProjectProjectionImpl;
 import ru.fondorg.mytracksrv.repo.ProjectRepository;
 import ru.fondorg.mytracksrv.service.KeycloakService;
 import ru.fondorg.mytracksrv.service.ProjectService;
@@ -38,12 +39,11 @@ public class ProjectController {
     }
 
     @GetMapping
-    public Page<ProjectProjection> getAllProjects(
-            @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size,
+    public Page<ProjectProjectionImpl> getAllProjects(
+            @RequestParam MultiValueMap<String, String> qParams,
             HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
-        return projectService.findUserProjects(user, page - 1, size);
+        return projectService.findUserProjects(user, qParams);
     }
 
     @PostMapping

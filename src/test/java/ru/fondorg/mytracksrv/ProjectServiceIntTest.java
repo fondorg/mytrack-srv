@@ -13,6 +13,7 @@ import ru.fondorg.mytracksrv.repo.ProjectParticipantRepository;
 import ru.fondorg.mytracksrv.repo.ProjectRepository;
 import ru.fondorg.mytracksrv.repo.UserRepository;
 import ru.fondorg.mytracksrv.service.IssueService;
+import ru.fondorg.mytracksrv.service.ParamMapBuilder;
 import ru.fondorg.mytracksrv.service.ProjectService;
 import ru.fondorg.mytracksrv.service.UserService;
 
@@ -140,9 +141,13 @@ public class ProjectServiceIntTest {
         projectService.deleteProject(projectId, user);
 
         //assert
-        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> {
-            issueService.getProjectIssues(projectId, user.getId(), 0, 20, IssueService.ISSUE_SCOPE_ALL);
-        });
+        assertThatExceptionOfType(AccessDeniedException.class)
+                .isThrownBy(() -> issueService.getProjectIssues(projectId, user.getId(),
+                        ParamMapBuilder.newMap()
+                                .add("page", "1")
+                                .add("size", "20")
+                                .add("scope", IssueService.ISSUE_SCOPE_ALL).build()
+                ));
 
         assertThat(issueRepository.findByProjectId(projectId, PageRequest.of(0, 20)).isEmpty()).isTrue();
 

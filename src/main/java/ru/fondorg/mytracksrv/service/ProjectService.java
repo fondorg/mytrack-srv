@@ -1,14 +1,17 @@
 package ru.fondorg.mytracksrv.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import ru.fondorg.mytracksrv.domain.*;
-import ru.fondorg.mytracksrv.domain.Project;
 import ru.fondorg.mytracksrv.exception.ModelDeleteException;
-import ru.fondorg.mytracksrv.repo.*;
+import ru.fondorg.mytracksrv.repo.ProjectParticipantRepository;
+import ru.fondorg.mytracksrv.repo.ProjectProjectionImpl;
+import ru.fondorg.mytracksrv.repo.ProjectRepository;
+import ru.fondorg.mytracksrv.repo.UserRepository;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
@@ -29,6 +32,8 @@ public class ProjectService {
     private final ServletRequestAttributesService requestAttributesService;
 
     private final ProjectPreDeleteHandler projectPreDeletionHandler;
+
+    private final QueryService queryService;
 
     /**
      * Creates new project in the repository, adds specified user to the project participants
@@ -109,10 +114,9 @@ public class ProjectService {
      * @param user the participant of the projects
      * @return list of projects where the specified user participates
      */
-    public Page<ProjectProjection> findUserProjects(User user, int page, int size) {
-        return projectParticipantRepository.findDistinctByUserOrderByProjectDesc(user, PageRequest.of(page, size));
+    public Page<ProjectProjectionImpl> findUserProjects(User user, MultiValueMap<String, String> params) {
+        return projectParticipantRepository.findProjects(userInProject(user), queryService.getPageable(params));
     }
-
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
     public Optional<Project> getProject(Long projectId, String userId) {
@@ -131,5 +135,9 @@ public class ProjectService {
                 throw new ModelDeleteException(String.format("Failed to delete project with id %d", projectId));
             }
         });
+    }
+
+    private BooleanExpression userInProject(User user) {
+        return QProjectParticipant.projectParticipant.user.id.eq(user.getId());
     }
 }
