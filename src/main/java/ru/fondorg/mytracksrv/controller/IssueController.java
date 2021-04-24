@@ -3,6 +3,7 @@ package ru.fondorg.mytracksrv.controller;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import ru.fondorg.mytracksrv.domain.Issue;
 import ru.fondorg.mytracksrv.domain.User;
@@ -21,16 +22,18 @@ public class IssueController {
     private final ServletRequestAttributesService requestAttributesService;
     private final ModelMapper modelMapper;
 
-    @PostMapping("/api/v1/projects/{projectId}/issues")
-    public Issue newProjectIssue(@PathVariable Long projectId, @RequestBody Issue issue, HttpServletRequest request) {
-        return issueService.saveIssue(issue, projectId, requestAttributesService.getUserFromRequest(request));
+    @PostMapping(ApiV1Paths.PROJECT_ISSUES)
+    public IssueDto newProjectIssue(@PathVariable Long id, @RequestBody Issue issue, HttpServletRequest request) {
+//        return issueService.saveIssue(issue, id, requestAttributesService.getUserFromRequest(request));
+        return modelMapper.map(issueService.saveIssue(issue, id,
+                requestAttributesService.getUserFromRequest(request)), IssueDto.class);
     }
 
-    @PutMapping(ApiV1Paths.PROJECT_ISSUE)
-    public void updateIssue(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody Issue issue, HttpServletRequest request) {
-        Issue reloaded = issueService.updateIssue(projectId, issue, requestAttributesService.getUserFromRequest(request).getId());
+//    @PostMapping(ApiV1Paths.PROJECT_ISSUES)
+//    public IssueDto updateCreateIssue(@PathVariable Long id, @RequestBody Issue issue, HttpServletRequest request) {
+//        Issue reloaded = issueService.saveIssue(issue, id, requestAttributesService.getUserFromRequest(request));
 //        return modelMapper.map(reloaded, IssueDto.class);
-    }
+//    }
 
     @GetMapping("/api/v1/projects/{projectId}/issues/{issueId}")
     public IssueDto getProjectIssue(@PathVariable Long projectId, @PathVariable Long issueId, HttpServletRequest request) {
@@ -38,14 +41,12 @@ public class IssueController {
                 .map(issue -> modelMapper.map(issue, IssueDto.class)).orElse(null); //todo: consider ResponseEntity
     }
 
-    @GetMapping("/api/v1/projects/{projectId}/issues")
-    public Page<IssueDto> listProjectIssues(@PathVariable Long projectId,
-                                            @RequestParam(required = false, defaultValue = "1") Integer page,
-                                            @RequestParam(required = false, defaultValue = "20") Integer size,
-                                            @RequestParam(required = false, defaultValue = "open") String scope,
+    @GetMapping(ApiV1Paths.PROJECT_ISSUES)
+    public Page<IssueDto> listProjectIssues(@PathVariable Long id,
+                                            @RequestParam MultiValueMap<String, String> qParams,
                                             HttpServletRequest request) {
         User user = requestAttributesService.getUserFromRequest(request);
-        Page<Issue> issues = issueService.getProjectIssues(projectId, user.getId(), page - 1, size, scope);
+        Page<Issue> issues = issueService.getProjectIssues(id, user.getId(), qParams);
         return issues.map(issue -> modelMapper.map(issue, IssueDto.class));
     }
 
@@ -55,4 +56,19 @@ public class IssueController {
         User user = requestAttributesService.getUserFromRequest(request);
         issueService.deleteIssue(projectId, user.getId(), issueId);
     }
+
+
+//    @GetMapping(ApiV1Paths.PROJECT_ISSUES)
+//    public Page<IssueDto> findProjectIssuesByTag(@PathVariable Long id,
+//                                                 @RequestParam(required = false, defaultValue = "1") Integer page,
+//                                                 @RequestParam(required = false, defaultValue = "20") Integer size,
+//                                                 @RequestParam Long tagId,
+//                                                 @RequestParam(required = false, defaultValue = "open") String scope,
+//                                                 HttpServletRequest request) {
+//        User user = requestAttributesService.getUserFromRequest(request);
+//        Page<Issue> issues = issueService.findProjectIssuesByTag(id, user.getId(), tagId, page, size, scope);
+//        return issues.map(issue -> modelMapper.map(issue, IssueDto.class));
+//    }
 }
+
+

@@ -12,6 +12,7 @@ import ru.fondorg.mytracksrv.domain.Project;
 import ru.fondorg.mytracksrv.domain.User;
 import ru.fondorg.mytracksrv.repo.UserRepository;
 import ru.fondorg.mytracksrv.service.IssueService;
+import ru.fondorg.mytracksrv.service.ParamMapBuilder;
 import ru.fondorg.mytracksrv.service.ProjectService;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -37,7 +38,9 @@ public class IssueServiceIntTest {
         Project project = MytrackTestUtils.instanceOfProject();
         project = projectService.createProject(project, user);
         Issue issue = createTestIssue(user, project);
-        Page<Issue> page = issueService.getProjectIssues(project.getId(), user.getId(), 0, 20);
+
+        Page<Issue> page = issueService.getProjectIssues(project.getId(), user.getId(),
+                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build());
         assertThat(page.getContent().size()).isEqualTo(1);
     }
 
@@ -79,7 +82,7 @@ public class IssueServiceIntTest {
         Issue issue = createTestIssue(user, project);
         String updatedTitle = "New issue title";
         issue.setTitle(updatedTitle);
-        Issue updatedIssue = issueService.updateIssue(project.getId(), issue, user.getId());
+        Issue updatedIssue = issueService.saveIssue(issue, project.getId(), user);
         assertThat(updatedIssue.getTitle()).isEqualTo(updatedTitle);
     }
 
@@ -110,8 +113,9 @@ public class IssueServiceIntTest {
             issueService.saveIssue(issue, project.getId(), user);
         }
         int pageSize = 5;
-        int pageNum = 0;
-        Page<Issue> page = issueService.getProjectIssues(project.getId(), user.getId(), pageNum, pageSize);
+        int pageNum = 1;
+        Page<Issue> page = issueService.getProjectIssues(project.getId(), user.getId(),
+                ParamMapBuilder.newMap().add("page", String.valueOf(pageNum)).add("size", String.valueOf(pageSize)).build());
         assertThat(page.getContent().size()).isEqualTo(pageSize);
         assertThat(page.getTotalPages()).isEqualTo(totalIssues / pageSize);
     }

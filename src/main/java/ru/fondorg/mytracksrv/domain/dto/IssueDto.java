@@ -1,7 +1,10 @@
 package ru.fondorg.mytracksrv.domain.dto;
 
 import lombok.Data;
+import ru.fondorg.mytracksrv.domain.Tag;
 import ru.fondorg.mytracksrv.domain.User;
+
+import java.util.Set;
 
 @Data
 public class IssueDto {
@@ -12,4 +15,5 @@ public class IssueDto {
     private Long projectId;
     private User author;
     private Boolean closed;
+    private Set<Tag> tags;
 }
