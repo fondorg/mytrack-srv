@@ -2,6 +2,7 @@ package ru.fondorg.mytracksrv.controller;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import ru.fondorg.mytracksrv.domain.Tag;
 import ru.fondorg.mytracksrv.service.ServletRequestAttributesService;
@@ -32,10 +33,8 @@ public class TagController {
     }
 
     @GetMapping(ApiV1Paths.TAGS)
-    public Page<Tag> getCommonTags(
-            @RequestParam(required = false, defaultValue = "1") Integer page,
-            @RequestParam(required = false, defaultValue = "20") Integer size) {
-        return tagService.getCommonTags(page, size);
+    public Page<Tag> getCommonTags(@RequestParam MultiValueMap<String, String> params) {
+        return tagService.getCommonTags(params);
     }
 
     @GetMapping(ApiV1Paths.PROJECT_TAG)

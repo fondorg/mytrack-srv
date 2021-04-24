@@ -15,6 +15,7 @@ import ru.fondorg.mytracksrv.domain.User;
 import ru.fondorg.mytracksrv.repo.IssueRepository;
 import ru.fondorg.mytracksrv.repo.UserRepository;
 import ru.fondorg.mytracksrv.service.IssueService;
+import ru.fondorg.mytracksrv.service.ParamMapBuilder;
 import ru.fondorg.mytracksrv.service.TagService;
 
 import java.util.HashSet;
@@ -82,7 +83,7 @@ public class IssueTagsTest {
         tagService.saveProjectTag(projectTag, project.getId(), user.getId());
         tagService.saveTag(commonTag1, user.getId());
         tagService.saveTag(commonTag2, user.getId());
-        Page<Tag> tags = tagService.getCommonTags(0, 20);
+        Page<Tag> tags = tagService.getCommonTags(ParamMapBuilder.newMap().add("page", "1").add("size", "20").build());
         assertThat(tags.getContent().size()).isEqualTo(2);
     }
 
