@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.time.LocalDateTime;
 import java.util.Set;
 
 @Getter
@@ -16,7 +17,14 @@ public class Issue {
 
     @Id
     @GeneratedValue
-    private java.lang.Long id;
+    private Long id;
+
+    @NotNull
+//    @Column(nullable = false)
+    private Long pid;
+
+    @Column(columnDefinition = "TIMESTAMP")
+    private LocalDateTime created;
 
     @NotNull
     @Column(name = "title", nullable = false)

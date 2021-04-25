@@ -30,6 +30,8 @@ public class QIssue extends EntityPathBase<Issue> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final NumberPath<Long> pid = createNumber("pid", Long.class);
+
     public final QProject project;
 
     public final SetPath<Tag, QTag> tags = this.<Tag, QTag>createSet("tags", Tag.class, QTag.class, PathInits.DIRECT2);
