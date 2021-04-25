@@ -2,6 +2,7 @@ package ru.fondorg.mytracksrv.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -23,6 +24,8 @@ public class CommentService {
 
     private final IssueService issueService;
 
+    private final QueryService queryService;
+
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
     public Comment saveComment(Comment comment, Long projectId, Long issueId, User user) {
         issueService.getProjectIssue(projectId, issueId, user).ifPresentOrElse(comment::setIssue,
@@ -41,7 +44,14 @@ public class CommentService {
         return commentRepository.findById(commentId);
     }
 
-    public Page<Comment> getIssueComments(Long issueId, Long projectId, User user, MultiValueMap<String, String>) {
-        commentRepository.findByIssueId()
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
+    public Page<Comment> getIssueComments(Long issueId, Long projectId, User user, MultiValueMap<String, String> params) {
+        Pageable pageable = queryService.getPageable(params);
+        return commentRepository.findByIssueId(issueId, pageable);
+    }
+
+    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
+    public void deleteComment(Long commentId, Long projectId, User user) {
+        commentRepository.deleteById(commentId);
     }
 }

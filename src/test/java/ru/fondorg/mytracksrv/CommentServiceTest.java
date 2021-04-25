@@ -11,10 +11,7 @@ import ru.fondorg.mytracksrv.domain.Issue;
 import ru.fondorg.mytracksrv.domain.Project;
 import ru.fondorg.mytracksrv.domain.User;
 import ru.fondorg.mytracksrv.repo.CommentRepository;
-import ru.fondorg.mytracksrv.service.CommentService;
-import ru.fondorg.mytracksrv.service.IssueService;
-import ru.fondorg.mytracksrv.service.QueryService;
-import ru.fondorg.mytracksrv.service.UserService;
+import ru.fondorg.mytracksrv.service.*;
 
 import java.util.Optional;
 
@@ -61,9 +58,8 @@ public class CommentServiceTest {
         TestBootstrap.TestStructure ts = testBootstrap.getTestStructure().withIssue1().withAlienUser();
         Comment comment = new Comment();
         comment.setText(COMMENT_TEXT);
-        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> {
-            commentService.saveComment(comment, ts.project.getId(), ts.issue1.getId(), ts.alienUser);
-        });
+        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() ->
+                commentService.saveComment(comment, ts.project.getId(), ts.issue1.getId(), ts.alienUser));
     }
 
     @Test
@@ -81,6 +77,46 @@ public class CommentServiceTest {
             assertThat(c.getAuthor().getId()).isEqualTo(ts.user.getId());
             assertThat(c.getIssue().getId()).isEqualTo(ts.issue1.getId());
         });
+    }
+
+    @Test
+    @WithMockUser
+    public void getIssueComments() throws Exception {
+        TestBootstrap.TestStructure ts = testBootstrap.getTestStructure().withIssue1().withIssue2();
+        Comment c1 = new Comment();
+        c1.setText(COMMENT_TEXT);
+        Comment c2 = new Comment();
+        c2.setText(COMMENT_TEXT);
+        commentService.saveComment(c1, ts.project.getId(), ts.issue1.getId(), ts.user);
+        commentService.saveComment(c2, ts.project.getId(), ts.issue2.getId(), ts.user);
+        assertThat(commentService.getIssueComments(ts.issue1.getId(), ts.project.getId(), ts.user,
+                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(1);
+        assertThat(commentService.getIssueComments(ts.issue2.getId(), ts.project.getId(), ts.user,
+                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(1);
+    }
+
+    @Test
+    @WithMockUser
+    public void deleteComment() throws Exception {
+        TestBootstrap.TestStructure ts = testBootstrap.getTestStructure().withIssue1();
+        Comment comment = new Comment();
+        comment.setText(COMMENT_TEXT);
+        Comment reloaded = commentService.saveComment(comment, ts.project.getId(), ts.issue1.getId(), ts.user);
+
+        commentService.deleteComment(reloaded.getId(), ts.project.getId(), ts.user);
+        assertThat(commentService.getIssueComments(ts.issue1.getId(), ts.project.getId(), ts.user,
+                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(0);
+    }
+
+    @Test
+    @WithMockUser
+    public void unauthenticatedDelete() throws Exception {
+        TestBootstrap.TestStructure ts = testBootstrap.getTestStructure().withIssue1().withAlienUser();
+        Comment comment = new Comment();
+        comment.setText(COMMENT_TEXT);
+        Comment reloaded = commentService.saveComment(comment, ts.project.getId(), ts.issue1.getId(), ts.user);
+        assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() ->
+                commentService.deleteComment(reloaded.getId(), ts.project.getId(), ts.alienUser));
     }
 
     private Issue createIssue(Project project, User user) {
