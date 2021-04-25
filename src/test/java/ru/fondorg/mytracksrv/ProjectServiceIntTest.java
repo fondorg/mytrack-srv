@@ -8,10 +8,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
 import ru.fondorg.mytracksrv.domain.*;
-import ru.fondorg.mytracksrv.repo.IssueRepository;
-import ru.fondorg.mytracksrv.repo.ProjectParticipantRepository;
-import ru.fondorg.mytracksrv.repo.ProjectRepository;
-import ru.fondorg.mytracksrv.repo.UserRepository;
+import ru.fondorg.mytracksrv.repo.*;
 import ru.fondorg.mytracksrv.service.IssueService;
 import ru.fondorg.mytracksrv.service.ParamMapBuilder;
 import ru.fondorg.mytracksrv.service.ProjectService;
@@ -51,6 +48,9 @@ public class ProjectServiceIntTest {
 
     @Autowired
     IssueRepository issueRepository;
+
+    @Autowired
+    TagRepository tagRepository;
 
     @Test
     public void createProject() throws Exception {
@@ -137,6 +137,9 @@ public class ProjectServiceIntTest {
         issue.setAuthor(user);
         issueService.saveIssue(issue, projectId, user);
 
+        Tag tag = new Tag("Project tag", "#ffffff", project);
+        tagRepository.save(tag);
+
         //act
         projectService.deleteProject(projectId, user);
 
@@ -153,6 +156,7 @@ public class ProjectServiceIntTest {
 
         List<ProjectParticipant> participants = projectParticipantRepository.findDistinctByProjectId(projectId);
         assertThat(participants).isEmpty();
+        assertThat(tagRepository.findByProjectId(projectId)).isEmpty();
     }
 
 

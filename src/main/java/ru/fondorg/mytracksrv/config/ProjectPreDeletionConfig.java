@@ -4,9 +4,11 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import ru.fondorg.mytracksrv.repo.IssueRepository;
+import ru.fondorg.mytracksrv.repo.TagRepository;
 import ru.fondorg.mytracksrv.service.ProjectIssuesPreDeletion;
 import ru.fondorg.mytracksrv.service.ProjectPreDeleteHandler;
 import ru.fondorg.mytracksrv.service.ProjectPreDeletionAction;
+import ru.fondorg.mytracksrv.service.ProjectTagsPreDeletion;
 
 import java.util.List;
 
@@ -27,5 +29,11 @@ public class ProjectPreDeletionConfig {
     @Order(100)
     public ProjectPreDeletionAction projectIssuesPreDeletion(IssueRepository issueRepository) {
         return new ProjectIssuesPreDeletion(issueRepository);
+    }
+
+    @Bean
+    @Order(200)
+    public ProjectPreDeletionAction projectTagsPreDeletion(TagRepository tagRepository) {
+        return new ProjectTagsPreDeletion(tagRepository);
     }
 }

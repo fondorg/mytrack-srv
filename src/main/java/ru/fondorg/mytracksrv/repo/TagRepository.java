@@ -11,4 +11,8 @@ public interface TagRepository extends JpaRepository<Tag, Long> {
     List<Tag> findByProjectIdOrProjectIsNull(Long projectId);
 
     Page<Tag> findByProjectIsNull(Pageable pageable);
+
+    void deleteByProjectId(Long projectId);
+
+    List<Tag> findByProjectId(Long projectId);
 }

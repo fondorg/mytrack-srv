@@ -14,6 +14,7 @@ import ru.fondorg.mytracksrv.domain.User;
 import ru.fondorg.mytracksrv.exception.NotFoundException;
 import ru.fondorg.mytracksrv.repo.IssueRepository;
 
+import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -41,6 +42,11 @@ public class IssueService {
                         () -> {
                             throw new NotFoundException("Project not found");
                         });
+        if (issue.getId() == null) {
+            long count = issueRepository.countByProjectId(projectId);
+            issue.setPid(++count);
+            issue.setCreated(LocalDateTime.now());
+        }
         if (null == issue.getClosed()) {
             issue.setClosed(false);
         }
