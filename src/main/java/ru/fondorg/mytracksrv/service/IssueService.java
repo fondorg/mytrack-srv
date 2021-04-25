@@ -53,35 +53,14 @@ public class IssueService {
         return issueRepository.save(issue);
     }
 
-//    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-//    public Issue updateIssue(Long projectId, Issue issue, String userId) {
-//        if (issue.getProject() == null) {
-//            projectService.getProject(projectId, userId).ifPresent(issue::setProject);
-//        }
-//        return issueRepository.save(issue);
-//    }
-
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
     public Optional<Issue> getProjectIssue(Long projectId, Long issueId, User user) {
         return issueRepository.findById(issueId);
     }
 
-//    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-//    public Page<Issue> getProjectIssues(Long projectId, String userId, int page, int size) {
-////        return issueRepository.findByProjectId(projectId, PageRequest.of(page, size));
-//        return getProjectIssues(projectId, userId, page, size, ISSUE_SCOPE_OPENED);
-//    }
-
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-//    public Page<Issue> getProjectIssues(Long projectId, String userId, int page, int size, String scope) {
     public Page<Issue> getProjectIssues(Long projectId, String userId, MultiValueMap<String, String> params) {
         return issueRepository.findAll(assembleIssuePredicate(projectId, params), queryService.getPageable(params));
-//        if (scope.equals(ISSUE_SCOPE_OPENED)) {
-//            return issueRepository.findByProjectIdAndClosed(projectId, false, PageRequest.of(page, size));
-//        } else if (scope.equals(ISSUE_SCOPE_CLOSED)) {
-//            return issueRepository.findByProjectIdAndClosed(projectId, true, PageRequest.of(page, size));
-//        }
-//        return issueRepository.findByProjectId(projectId, PageRequest.of(page, size));
     }
 
 

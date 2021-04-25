@@ -26,6 +26,8 @@ public class QIssue extends EntityPathBase<Issue> {
 
     public final BooleanPath closed = createBoolean("closed");
 
+    public final DateTimePath<java.time.LocalDateTime> created = createDateTime("created", java.time.LocalDateTime.class);
+
     public final StringPath description = createString("description");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);

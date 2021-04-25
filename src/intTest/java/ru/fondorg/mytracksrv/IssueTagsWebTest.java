@@ -23,7 +23,7 @@ public class IssueTagsWebTest {
 //    @Autowired
 //    private TestRestTemplate restTemplate;
     @Autowired
-    private ProjectBootstrap projectBootstrap;
+    private TestBootstrap testBootstrap;
     private Long projectId;
     private static final String COLOR = "#fffffff";
 
@@ -40,7 +40,7 @@ public class IssueTagsWebTest {
     @Test
     @WithMockUser
     public void saveProjectTag() throws Exception {
-        projectId = projectBootstrap.bootstrapProject("Project 1").getId();
+        projectId = testBootstrap.bootstrapProject("Project 1").getId();
         mockMvc.perform(post(ApiV1Paths.PROJECT_TAGS, projectId)
                 .contentType("application/json")
                 .content(objectMapper.writeValueAsString(new Tag("Tag1", COLOR)))
