@@ -2,9 +2,9 @@ package ru.fondorg.mytracksrv.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
 import ru.fondorg.mytracksrv.domain.Tag;
 import ru.fondorg.mytracksrv.repo.IssueRepository;
 import ru.fondorg.mytracksrv.repo.ProjectRepository;
@@ -21,6 +21,8 @@ public class TagService {
     private final TagRepository tagRepository;
 
     private final ProjectRepository projectRepository;
+
+    private final QueryService queryService;
 
     /**
      * Creates new tag
@@ -76,8 +78,8 @@ public class TagService {
      * @return list of all common tags
      */
     @PreAuthorize("isAuthenticated()")
-    public Page<Tag> getCommonTags(int page, int size) {
-        return tagRepository.findByProjectIsNull(PageRequest.of(page, size));
+    public Page<Tag> getCommonTags(MultiValueMap<String, String> params) {
+        return tagRepository.findByProjectIsNull(queryService.getPageable(params));
     }
 
     @PreAuthorize("isAuthenticated()")
