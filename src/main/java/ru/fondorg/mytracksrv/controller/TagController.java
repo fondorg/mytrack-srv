@@ -22,7 +22,7 @@ public class TagController {
         return tagService.saveProjectTag(tag, projectId, requestAttributesService.getUserFromRequest(request).getId());
     }
 
-    @PostMapping
+    @PostMapping(ApiV1Paths.TAGS)
     public Tag newCommonTag(@RequestBody Tag tag) {
         return tagService.saveTag(tag);
     }
