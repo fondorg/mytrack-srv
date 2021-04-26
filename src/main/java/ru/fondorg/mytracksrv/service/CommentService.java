@@ -1,17 +1,15 @@
 package ru.fondorg.mytracksrv.service;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import ru.fondorg.mytracksrv.domain.Comment;
 import ru.fondorg.mytracksrv.domain.User;
 import ru.fondorg.mytracksrv.exception.NotFoundException;
 import ru.fondorg.mytracksrv.repo.CommentRepository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -45,9 +43,9 @@ public class CommentService {
     }
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
-    public Page<Comment> getIssueComments(Long issueId, Long projectId, User user, MultiValueMap<String, String> params) {
-        Pageable pageable = queryService.getPageable(params);
-        return commentRepository.findByIssueId(issueId, pageable);
+    public List<Comment> getIssueComments(Long issueId, Long projectId, User user/*, MultiValueMap<String, String> params*/) {
+//        Pageable pageable = queryService.getPageable(params);
+        return commentRepository.findByIssueIdOrderByCreated(issueId);
     }
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")

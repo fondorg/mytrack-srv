@@ -46,8 +46,8 @@ public class CommentServiceTest {
         Comment comment = new Comment();
         comment.setText(COMMENT_TEXT);
         Comment reloaded = commentService.saveComment(comment, ts.project.getId(), ts.issue1.getId(), ts.user);
-        assertThat(commentRepository.findByIssueId(ts.issue1.getId(), testBootstrap.getPageable(1, 20))
-                .getTotalElements()).isEqualTo(1);
+        assertThat(commentRepository.findByIssueIdOrderByCreated(ts.issue1.getId())
+                .size()).isEqualTo(1);
         assertThat(reloaded.getText()).isEqualTo(COMMENT_TEXT);
         assertThat(reloaded.getIssue().getId()).isEqualTo(ts.issue1.getId());
     }
@@ -89,10 +89,12 @@ public class CommentServiceTest {
         c2.setText(COMMENT_TEXT);
         commentService.saveComment(c1, ts.project.getId(), ts.issue1.getId(), ts.user);
         commentService.saveComment(c2, ts.project.getId(), ts.issue2.getId(), ts.user);
-        assertThat(commentService.getIssueComments(ts.issue1.getId(), ts.project.getId(), ts.user,
-                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(1);
-        assertThat(commentService.getIssueComments(ts.issue2.getId(), ts.project.getId(), ts.user,
-                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(1);
+//        assertThat(commentService.getIssueComments(ts.issue1.getId(), ts.project.getId(), ts.user,
+//                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(1);
+//        assertThat(commentService.getIssueComments(ts.issue2.getId(), ts.project.getId(), ts.user,
+//                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(1);
+        assertThat(commentService.getIssueComments(ts.issue1.getId(), ts.project.getId(), ts.user).size()).isEqualTo(1);
+        assertThat(commentService.getIssueComments(ts.issue2.getId(), ts.project.getId(), ts.user).size()).isEqualTo(1);
     }
 
     @Test
@@ -104,8 +106,9 @@ public class CommentServiceTest {
         Comment reloaded = commentService.saveComment(comment, ts.project.getId(), ts.issue1.getId(), ts.user);
 
         commentService.deleteComment(reloaded.getId(), ts.project.getId(), ts.user);
-        assertThat(commentService.getIssueComments(ts.issue1.getId(), ts.project.getId(), ts.user,
-                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(0);
+//        assertThat(commentService.getIssueComments(ts.issue1.getId(), ts.project.getId(), ts.user,
+//                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(0);
+        assertThat(commentService.getIssueComments(ts.issue1.getId(), ts.project.getId(), ts.user).size()).isEqualTo(0);
     }
 
     @Test
