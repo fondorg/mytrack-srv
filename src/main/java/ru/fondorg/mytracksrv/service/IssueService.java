@@ -11,9 +11,11 @@ import org.springframework.util.MultiValueMap;
 import ru.fondorg.mytracksrv.domain.Issue;
 import ru.fondorg.mytracksrv.domain.QIssue;
 import ru.fondorg.mytracksrv.domain.User;
+import ru.fondorg.mytracksrv.exception.ModelDeleteException;
 import ru.fondorg.mytracksrv.exception.NotFoundException;
 import ru.fondorg.mytracksrv.repo.IssueRepository;
 
+import javax.transaction.Transactional;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
@@ -29,6 +31,8 @@ public class IssueService {
     private final ProjectService projectService;
 
     private final QueryService queryService;
+
+    private final IssuePreDeleteHandler issuePreDeleteHandler;
 
     public static final String ISSUE_SCOPE_OPENED = "open";
     public static final String ISSUE_SCOPE_CLOSED = "closed";
@@ -53,41 +57,26 @@ public class IssueService {
         return issueRepository.save(issue);
     }
 
-//    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-//    public Issue updateIssue(Long projectId, Issue issue, String userId) {
-//        if (issue.getProject() == null) {
-//            projectService.getProject(projectId, userId).ifPresent(issue::setProject);
-//        }
-//        return issueRepository.save(issue);
-//    }
-
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
     public Optional<Issue> getProjectIssue(Long projectId, Long issueId, User user) {
         return issueRepository.findById(issueId);
     }
 
-//    @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-//    public Page<Issue> getProjectIssues(Long projectId, String userId, int page, int size) {
-////        return issueRepository.findByProjectId(projectId, PageRequest.of(page, size));
-//        return getProjectIssues(projectId, userId, page, size, ISSUE_SCOPE_OPENED);
-//    }
-
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
-//    public Page<Issue> getProjectIssues(Long projectId, String userId, int page, int size, String scope) {
     public Page<Issue> getProjectIssues(Long projectId, String userId, MultiValueMap<String, String> params) {
         return issueRepository.findAll(assembleIssuePredicate(projectId, params), queryService.getPageable(params));
-//        if (scope.equals(ISSUE_SCOPE_OPENED)) {
-//            return issueRepository.findByProjectIdAndClosed(projectId, false, PageRequest.of(page, size));
-//        } else if (scope.equals(ISSUE_SCOPE_CLOSED)) {
-//            return issueRepository.findByProjectIdAndClosed(projectId, true, PageRequest.of(page, size));
-//        }
-//        return issueRepository.findByProjectId(projectId, PageRequest.of(page, size));
     }
 
 
+    @Transactional
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
     public void deleteIssue(Long projectId, String userId, Long issueId) {
-        issueRepository.deleteById(issueId);
+        boolean preDel = issuePreDeleteHandler.handlePreDeletionActions(issueId, userId);
+        if (preDel) {
+            issueRepository.deleteById(issueId);
+        } else {
+            throw new ModelDeleteException(String.format("Failed to delete issue with id %d", issueId));
+        }
     }
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #userId)")
@@ -109,7 +98,7 @@ public class IssueService {
         BooleanBuilder builder = new BooleanBuilder();
         builder.and(ofProject(projectId)).
                 and(whereScope(Objects.requireNonNullElse(params.getFirst("scope"), ISSUE_SCOPE_OPENED)))
-        .and(withTags(Objects.requireNonNullElse(params.get("tags[]"), Collections.emptyList())));
+                .and(withTags(Objects.requireNonNullElse(params.get("tags[]"), Collections.emptyList())));
         return builder;
     }
 

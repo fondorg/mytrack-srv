@@ -19,7 +19,7 @@ public class QueryService {
      * @param queryParams Query parameters map
      * @return Pageable object
      */
-    Pageable getPageable(MultiValueMap<String, String> queryParams) {
+    public Pageable getPageable(MultiValueMap<String, String> queryParams) {
         int page = Integer.parseInt(Objects.requireNonNullElse(queryParams.getFirst("page"), "1"));
         int size = Integer.parseInt(Objects.requireNonNullElse(queryParams.getFirst("size"), "5"));
         return PageRequest.of(page - 1, size);

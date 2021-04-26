@@ -30,7 +30,7 @@ public class IssueTagsTest {
     @Autowired
     IssueRepository issueRepository;
     @Autowired
-    ProjectBootstrap projectBootstrap;
+    TestBootstrap testBootstrap;
     @Autowired
     UserRepository userRepository;
     @Autowired
@@ -42,8 +42,8 @@ public class IssueTagsTest {
     @WithMockUser
     public void tagCreation() {
         User user = MytrackTestUtils.instanceOfUser("111");
-        Project project1 = projectBootstrap.bootstrapProject("Project 1", user);
-        Project project2 = projectBootstrap.bootstrapProject("Project 2", user);
+        Project project1 = testBootstrap.bootstrapProject("Project 1", user);
+        Project project2 = testBootstrap.bootstrapProject("Project 2", user);
         Tag commonTag = new Tag("CommonTag", "#ffffff");
         tagService.saveTag(commonTag, user.getId());
         Tag project1Tag = new Tag("Project1Tag", "#ffffff");
@@ -65,7 +65,7 @@ public class IssueTagsTest {
     public void tagsAccessViolation() {
         User user = MytrackTestUtils.instanceOfUser("111");
         User alien = userRepository.save(MytrackTestUtils.instanceOfUser("alien"));
-        Project project = projectBootstrap.bootstrapProject("Project 1", user);
+        Project project = testBootstrap.bootstrapProject("Project 1", user);
         Tag projectTag = new Tag("ProjectTag", "#ffffff");
         tagService.saveProjectTag(projectTag, project.getId(), user.getId());
         assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() ->
@@ -76,7 +76,7 @@ public class IssueTagsTest {
     @WithMockUser
     public void getCommonTags() {
         User user = MytrackTestUtils.instanceOfUser("111");
-        Project project = projectBootstrap.bootstrapProject("Project 1", user);
+        Project project = testBootstrap.bootstrapProject("Project 1", user);
         Tag projectTag = new Tag("ProjectTag", "#ffffff");
         Tag commonTag1 = new Tag("Tag1", "#ffffff");
         Tag commonTag2 = new Tag("Tag2", "#ffffff");
@@ -99,7 +99,7 @@ public class IssueTagsTest {
     @WithMockUser
     public void deleteProjectTag() {
         User user = MytrackTestUtils.instanceOfUser("111");
-        Project project = projectBootstrap.bootstrapProject("Project 1", user);
+        Project project = testBootstrap.bootstrapProject("Project 1", user);
         Tag projectTag = new Tag("Tag1", "#ffffff", project);
         projectTag = tagService.saveTag(projectTag, user.getId());
         tagService.deleteProjectTag(projectTag.getId(), project.getId(), user.getId());
@@ -114,7 +114,7 @@ public class IssueTagsTest {
         //assert
         User user = MytrackTestUtils.instanceOfUser("111");
         User alien = userRepository.save(MytrackTestUtils.instanceOfUser("alien"));
-        Project project = projectBootstrap.bootstrapProject("Project 1", user);
+        Project project = testBootstrap.bootstrapProject("Project 1", user);
         Tag projectTag = tagService.saveTag(new Tag("ProjectTag", "#ffffff", project), user.getId());
         //act and assert
         assertThatExceptionOfType(AccessDeniedException.class).isThrownBy(() -> {
@@ -126,7 +126,7 @@ public class IssueTagsTest {
     @WithMockUser
     public void getProjectTagById() {
         User user = MytrackTestUtils.instanceOfUser("111");
-        Project project = projectBootstrap.bootstrapProject("Project 1", user);
+        Project project = testBootstrap.bootstrapProject("Project 1", user);
         Tag projectTag = tagService.saveTag(new Tag("ProjectTag", "#ffffff", project), user.getId());
         assertThat(tagService.getProjectTag(project.getId(), projectTag.getId(), user.getId())).isPresent();
     }
@@ -142,7 +142,7 @@ public class IssueTagsTest {
     @WithMockUser
     public void createAndFindIssueTag() {
         User user = MytrackTestUtils.instanceOfUser("111");
-        Project project = projectBootstrap.bootstrapProject("Project 1", user);
+        Project project = testBootstrap.bootstrapProject("Project 1", user);
         Issue issue = new Issue();
         issue.setTitle("Test issue");
         issue.setDescription("Test issue");
