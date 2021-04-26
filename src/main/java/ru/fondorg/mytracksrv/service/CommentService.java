@@ -44,7 +44,6 @@ public class CommentService {
 
     @PreAuthorize("@projectService.isUserParticipatesInProject(#projectId, #user.id)")
     public List<Comment> getIssueComments(Long issueId, Long projectId, User user/*, MultiValueMap<String, String> params*/) {
-//        Pageable pageable = queryService.getPageable(params);
         return commentRepository.findByIssueIdOrderByCreated(issueId);
     }
 

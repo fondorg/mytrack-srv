@@ -10,7 +10,8 @@ import java.util.List;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long>, QuerydslPredicateExecutor<Issue> {
-//    Page<Comment> findByIssueId(Long issueId, Pageable pageable);
 
     List<Comment> findByIssueIdOrderByCreated(Long issueId);
+
+    void deleteByIssueId(Long issueId);
 }

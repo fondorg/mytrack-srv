@@ -7,13 +7,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.annotation.DirtiesContext;
+import ru.fondorg.mytracksrv.domain.Comment;
 import ru.fondorg.mytracksrv.domain.Issue;
 import ru.fondorg.mytracksrv.domain.Project;
 import ru.fondorg.mytracksrv.domain.User;
 import ru.fondorg.mytracksrv.repo.UserRepository;
+import ru.fondorg.mytracksrv.service.CommentService;
 import ru.fondorg.mytracksrv.service.IssueService;
 import ru.fondorg.mytracksrv.service.ParamMapBuilder;
 import ru.fondorg.mytracksrv.service.ProjectService;
+
+import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
@@ -30,6 +34,12 @@ public class IssueServiceIntTest {
 
     @Autowired
     IssueService issueService;
+
+    @Autowired
+    TestBootstrap testBootstrap;
+
+    @Autowired
+    CommentService commentService;
 
     @Test
     @WithMockUser
@@ -119,6 +129,24 @@ public class IssueServiceIntTest {
         assertThat(page.getContent().size()).isEqualTo(pageSize);
         assertThat(page.getTotalPages()).isEqualTo(totalIssues / pageSize);
     }
+
+    @Test
+    @WithMockUser
+    public void deleteIssue() throws Exception {
+        TestBootstrap.TestStructure ts = testBootstrap.getTestStructure().withIssue1();
+        Comment comment = new Comment();
+        comment.setText("Comment 1");
+        comment.setAuthor(ts.user);
+        comment.setCreated(LocalDateTime.now());
+        comment.setIssue(ts.issue1);
+        commentService.saveComment(comment, ts.project.getId(), ts.issue1.getId(), ts.user);
+
+        issueService.deleteIssue(ts.project.getId(), ts.user.getId(), ts.issue1.getId());
+        assertThat(issueService.getProjectIssues(ts.project.getId(), ts.user.getId(),
+                ParamMapBuilder.newMap().add("page", "1").add("size", "20").build()).getTotalElements()).isEqualTo(0);
+        assertThat(commentService.getIssueComments(ts.issue1.getId(), ts.project.getId(), ts.user).size()).isEqualTo(0);
+    }
+
 
     /**
      * Helper test method that creates new issue instance in the database
